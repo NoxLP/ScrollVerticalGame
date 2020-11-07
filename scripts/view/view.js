@@ -7,4 +7,5 @@ var canvas, ctx;
 export const setCanvas = canvasElement => {
     canvas = canvasElement;
     ctx = canvas.getContext("2d");
+    console.log(canvas, ctx)
 }
