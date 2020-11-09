@@ -1,11 +1,14 @@
-section {
-    padding: 0;
-    margin: 0;
+body {
+  padding: 0;
+  margin: 0 auto;
 }
-canvas {
-    width: 100vw;
-    height: 100vh;
-    background: url("../assets/images/background/blue_milky_way_galaxy.jpg");
-    background-size: 100% 108%;
-    background-repeat: no-repeat;
+
+#game {
+  background: url("../assets/images/background/blue_milky_way_galaxy.jpg");
+  background-size: 100% 108%;
+  background-repeat: no-repeat;
+  position: relative;
+}
+#player {
+  position: absolute;
 }
