@@ -7,9 +7,10 @@ export class DrawableObject {
     this.y = y;
     this.topBottom = topBottom;
     this.leftRight = leftRight;
+    
     this.update();
   }
-  update = function () {
+  update () {
     this.elem.style.width = `${this.width}px`;
     this.elem.style.height = `${this.height}px`;
 
@@ -19,8 +20,8 @@ export class DrawableObject {
       this.elem.style.right = `${this.x}px`;
 
     if(this.topBottom === "top")
-      this.elem.style.top = `${this.y}px`;
+      this.elem.style.top = `${this.y}px`; //top: 50px;
     else
-      this.elem.style.bottom = `${this.y}px`;
+      this.elem.style.bottom = `${this.y}px`;//bottom: 50px;
   }
 }
