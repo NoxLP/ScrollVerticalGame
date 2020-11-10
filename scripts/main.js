@@ -4,8 +4,9 @@ import { DrawableObject } from "./drawableObject.js";
 //game.createEnemies();
 class Game {
   constructor(enemiesPerRow) {
-    this.step = 50;
+    this.step = 9;
     this.bulletStep = 15;
+    this.bulletTimeout = 250;
 
     this.canvas = document.getElementById("game");
     this.width = 1100;
@@ -24,6 +25,12 @@ class Game {
 
     this.enemiesPerRow = enemiesPerRow;
     this.enemies = new Array(5).fill(new Array(this.enemiesPerRow));
+
+    this.keysDown = {
+      ArrowLeft: false,
+      ArrowRight: false,
+      Space: false
+    }
     /*
     new Array(5) === [null, null, null, null, null]
     for(i=0;i<length;i++)
@@ -140,32 +147,42 @@ class Player extends DrawableObject {
     elem.src = "../assets/images/spaceships/player1.png";
     elem.id = "player";
     super(elem, game.playerInitialCoords[0], game.playerInitialCoords[1], game.playerSize[0], game.playerSize[1], "bottom");
+
+    this.lastBulletTime = null;
+    this.shootTimer;
   }
   moveLeft = function () {
-    if (this.x > game.step) {
+    if (this.x > game.step && game.keysDown.ArrowLeft) {
       this.x -= game.step;
       this.update();
+      window.requestAnimationFrame(() => { this.moveLeft(); });
     }
   }
   moveRight = function () {
-    if (this.x + this.width < game.width - game.step) {
+    if (this.x + this.width < game.width - game.step && game.keysDown.ArrowRight) {
       this.x += game.step;
       this.update();
+      window.requestAnimationFrame(() => { this.moveRight(); });
     }
   }
   shoot() {
-    console.log("Function player.shoot")
-    console.log("bullet x", this.x + (this.width / 2) - (game.bulletSize[0] / 2))
-    console.log("bullet y", this.y + game.bulletSize[1])
-    const bullet = new PlayerBullet(
-      this.x + (this.width / 2) - (game.bulletSize[0] / 2), 
-      this.y + (game.bulletSize[1] * 1.5));
-    console.log(bullet);
-    /*
-    Para mover la bala hacia arriba:
-    1.- window.requestAnimationFrame(bullet.move)
-    */
-    bullet.move();
+    if(game.keysDown.Space) {
+      console.log("BULLET")
+      const bullet = new PlayerBullet(
+        this.x + (this.width / 2) - (game.bulletSize[0] / 2), 
+        this.y + game.bulletSize[1]);
+      /*
+      Para mover la bala hacia arriba:
+      1.- window.requestAnimationFrame(bullet.move)
+      */
+      bullet.move();
+      if(!this.shootTimer)
+        this.shootTimer = setInterval(() => { this.shoot(); }, game.bulletTimeout);
+    } else {
+      console.log("FALSE")
+      clearInterval(this.shootTimer);
+      this.shootTimer = null;
+    }
   }
 }
 
@@ -175,7 +192,29 @@ const player = new Player();
 console.log(game);
 
 document.addEventListener("keydown", function (e) {
-  if (e.key === "ArrowLeft") { player.moveLeft(); }
-  if (e.key === "ArrowRight") { player.moveRight(); }
-  if (e.key === " ") { console.log("SHOOT"); player.shoot(); }
+  if (e.key === "ArrowLeft" && !game.keysDown.ArrowRight && !game.keysDown.ArrowLeft) {
+    game.keysDown.ArrowLeft = true;
+    player.moveLeft();
+  }
+  if (e.key === "ArrowRight" && !game.keysDown.ArrowLeft && !game.keysDown.ArrowRight) {
+    game.keysDown.ArrowRight = true;
+    player.moveRight(); 
+  }
+  if (e.key === " " && !game.keysDown.Space) {
+    console.log("SPACE")
+    game.keysDown.Space = true;
+    player.shoot();
+  }
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft") {
+    game.keysDown.ArrowLeft = false;
+  }
+  if (e.key === "ArrowRight") {
+    game.keysDown.ArrowRight = false;
+  }
+  if (e.key === " ") {
+    game.keysDown.Space = false;
+  }
 });
