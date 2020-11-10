@@ -1,3 +1,5 @@
+import { game } from "./main.js";
+
 export class DrawableObject {
   constructor(domElement, x, y, width, height, topBottom = "top", leftRight = "left") {
     this.elem = domElement;
@@ -7,7 +9,8 @@ export class DrawableObject {
     this.y = y;
     this.topBottom = topBottom;
     this.leftRight = leftRight;
-    
+
+    game.canvas.appendChild(this.elem);
     this.update();
   }
   update () {
@@ -15,7 +18,7 @@ export class DrawableObject {
     this.elem.style.height = `${this.height}px`;
 
     if(this.leftRight === "left")
-      this.elem.style.left = `${this.x}px`;
+      this.elem.style.left = `${this.x}px`;// this.x + "px"
     else
       this.elem.style.right = `${this.x}px`;
 

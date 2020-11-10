@@ -1,5 +1,7 @@
 import { DrawableObject } from "./drawableObject.js";
-
+//const game = new Game(5);
+//game.enemiesPerRow === 5 => true
+//game.createEnemies();
 class Game {
   constructor(enemiesPerRow) {
     this.step = 30;
@@ -11,12 +13,14 @@ class Game {
     this.canvas.style.height = `${this.height}px`;
 
     this.enemiesSize = [
-      [50,50],
-      [65,65],
-      [80,80]
+      [50, 50],
+      [65, 65],
+      [80, 80]
     ];
     this.playerSize = [80, 80];
-    this.playerInitialCoords = [Math.round((this.width / 2) - (this.playerSize[0] / 2)), 60]
+    this.playerInitialCoords = [Math.round((this.width / 2) - (this.playerSize[0] / 2)), 60];
+    this.bulletSize = [60, 50];
+
     this.enemiesPerRow = enemiesPerRow;
     this.enemies = new Array(5).fill(new Array(this.enemiesPerRow));
     /*
@@ -45,7 +49,8 @@ class Game {
       (parseInt(this.canvas.style.width) / this.enemiesPerRow) * column,
       ((parseInt(this.canvas.style.height) - this.enemiesSize[2][1] - this.playerInitialCoords[1] - 20) / 5) * row
     ];
-  }/**
+  }
+  /**
    * Create all enemies in their initial position
    */
   createEnemies() {
@@ -61,10 +66,10 @@ class Game {
     */
     for (let type = 0; type < 3; type++) {
       if (type === 0) {
-        for(let j = 0; j < this.enemiesPerRow; j++) {
+        for (let j = 0; j < this.enemiesPerRow; j++) {
           const coords = this._calculateCoordinatesByPosition(0, j);
           //console.log(coords)
-          this.enemies[type][j] = new Enemy(type, coords[0], coords[1]);
+          this.enemies[0][j] = new Enemy(type, coords[0], coords[1]);
         }
       } else {
         /*
@@ -77,8 +82,8 @@ class Game {
         row_1 = (tipo * 2) - 1
         row_2 = tipo * 2
         */
-        for (let i = (type * 2) - 1; i < (type * 2) + 1; i++){
-          for(let j = 0; j < this.enemiesPerRow; j++){
+        for (let i = (type * 2) - 1; i < (type * 2) + 1; i++) {
+          for (let j = 0; j < this.enemiesPerRow; j++) {
             const coords = this._calculateCoordinatesByPosition(i, j);
             //console.log(coords)
             this.enemies[i][j] = new Enemy(type, coords[0], coords[1]);
@@ -89,16 +94,24 @@ class Game {
   }
 }
 
-
 class Enemy extends DrawableObject {
   constructor(type, x, y) {
     let elem = new Image();
-    elem.src = `../assets/images/spaceships/enemy${type}.png`;
+    elem.src = `../assets/images/spaceships/enemy${type}.png`;// "../assets/images/spaceships/enemy" + type + ".png"
     elem.classList.add("enemy");
+    //constructor(domElement, x, y, width, height, topBottom = "top", leftRight = "left")
     super(elem, x, y, game.enemiesSize[type][0], game.enemiesSize[type][1]);
 
     this.type = type;
-    game.canvas.appendChild(this.elem);
+  }
+}
+
+class PlayerBullet extends DrawableObject {
+  constructor(x, y) {
+    let elem = new Image(); //document.getElementById('player');
+    elem.src = "../assets/images/spaceships/playerBullet.png";
+    elem.classList.add("bullet");
+    super(elem, x, y, game.bulletSize[0], game.bulletSize[1], "bottom");
   }
 }
 
@@ -108,8 +121,6 @@ class Player extends DrawableObject {
     elem.src = "../assets/images/spaceships/player1.png";
     elem.id = "player";
     super(elem, game.playerInitialCoords[0], game.playerInitialCoords[1], game.playerSize[0], game.playerSize[1], "bottom");
-    
-    game.canvas.appendChild(this.elem);
   }
   moveLeft = function () {
     if (this.x > game.step) {
@@ -123,14 +134,24 @@ class Player extends DrawableObject {
       this.update();
     }
   }
+  shoot() {
+    console.log("Function player.shoot")
+    console.log("bullet x", this.x + (this.width / 2) - (game.bulletSize[0] / 2))
+    console.log("bullet y", this.y + game.bulletSize[1])
+    const bullet = new PlayerBullet(
+      this.x + (this.width / 2) - (game.bulletSize[0] / 2), 
+      this.y + (game.bulletSize[1] * 1.5));
+    console.log(bullet);
+  }
 }
 
-const game = new Game(11);
+export const game = new Game(5);
 game.createEnemies();
 const player = new Player();
 console.log(game);
 
 document.addEventListener("keydown", function (e) {
-  if (e.key === "ArrowLeft") { player.moveLeft() }
-  if (e.key === "ArrowRight") { player.moveRight() }
+  if (e.key === "ArrowLeft") { player.moveLeft(); }
+  if (e.key === "ArrowRight") { player.moveRight(); }
+  if (e.key === " ") { console.log("SHOOT"); player.shoot(); }
 });
