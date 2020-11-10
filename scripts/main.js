@@ -4,7 +4,8 @@ import { DrawableObject } from "./drawableObject.js";
 //game.createEnemies();
 class Game {
   constructor(enemiesPerRow) {
-    this.step = 30;
+    this.step = 50;
+    this.bulletStep = 15;
 
     this.canvas = document.getElementById("game");
     this.width = 1100;
@@ -113,6 +114,24 @@ class PlayerBullet extends DrawableObject {
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1], "bottom");
   }
+  move() {
+    /*
+    Aumentas y en x pixeles (game.bulletStep)
+    
+    Si la bala llega a arriba (game.height)
+      para y destruye la bala
+    else Si colisiona con enemigo
+      para, destruyela bala, destruye enemigo
+    de otra forma
+      window.requestAnimationFrame(this.move)
+    */
+    if(this.y - this.height < game.height) {
+      //console.log("Bala subiendo");
+      this.y += game.bulletStep;
+      this.update();
+      window.requestAnimationFrame(() => { this.move(); });
+    }
+  }
 }
 
 class Player extends DrawableObject {
@@ -142,6 +161,11 @@ class Player extends DrawableObject {
       this.x + (this.width / 2) - (game.bulletSize[0] / 2), 
       this.y + (game.bulletSize[1] * 1.5));
     console.log(bullet);
+    /*
+    Para mover la bala hacia arriba:
+    1.- window.requestAnimationFrame(bullet.move)
+    */
+    bullet.move();
   }
 }
 

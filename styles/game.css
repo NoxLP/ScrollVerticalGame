@@ -15,6 +15,7 @@ body {
 
 .enemy {
   position: absolute;
+  transform: rotate(180deg);
 }
 .bullet {
   position: absolute;
