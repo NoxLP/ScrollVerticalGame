@@ -12,3 +12,7 @@ body {
 #player {
   position: absolute;
 }
+
+.enemy {
+  position: absolute;
+}
