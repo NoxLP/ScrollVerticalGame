@@ -2,6 +2,9 @@ body {
   padding: 0;
   margin: 0 auto;
 }
+button {
+  margin: 20px;
+}
 
 #game {
   background: url("../assets/images/background/blue_milky_way_galaxy.jpg");
