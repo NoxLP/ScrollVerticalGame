@@ -1,7 +1,7 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
-export const game = new Game(11);
+export const game = new Game(5);
 game.createEnemies();
 const player = new Player();
 console.log(game);
@@ -36,6 +36,6 @@ document.addEventListener("keyup", e => {
 
 window.onload = () => {
   document.getElementById("enemiesMovB").onclick = () => {
-    
+    game.moveEnemies();
   };
 };

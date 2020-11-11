@@ -3,7 +3,7 @@ import { Enemy } from "./Enemy.js";
 export class Game {
   constructor(enemiesPerRow) {
     this.step = 9;
-    this.enemyFrameStep = 9;
+    this.enemyFrameStep = 4;
     this.enemyTotalStepPx = 36;
     this.bulletStep = 15;
     this.bulletTimeout = 250;
@@ -56,7 +56,7 @@ export class Game {
     //margen + ((total ancho / numero de naves) * numero nave actual)
     return [
       (parseInt(this.canvas.style.width) / this.enemiesPerRow) * column,
-      ((parseInt(this.canvas.style.height) - this.canvasRowHeight) / 5) * row
+      this.canvasRowHeight * row
     ];
   }
   /**
@@ -117,24 +117,28 @@ export class Game {
     },
     800);
   }
-  
-  doEnemiesMovementPattern() {
-
-  }
+ 
   moveEnemies() {
     /*
     Van de izquierda a derecha
-      mientras que la esquina derecha del enemigo de la derecha no colisione con el límite de la derecha
+    mientras que la esquina derecha del enemigo de la derecha no colisione con el límite de la derecha
       sumas a x
     bajan
       sumas una fila a y 
     van de derecha a izquierda
       mientras que la esquina izquierda del enemigo de la izquierda no colisione con el límite de la izquierda
-      restas a x
-    bajan
-      sumas una fila a y 
+    restas a x
+      bajan
+    sumas una fila a y 
     REPITE hasta que un enemigo de la fila inferior colisione con player
     */
-    
+   
+   //While la fila de abajo no colisione con el jugador
+
+    for (let i = 0; i < this.enemies.length; i++){
+      for(let j = 0; j < this.enemies[i].length; j++){
+        this.enemies[i][j].moveEnemyLeftToRight();
+      }
+    }
   }
 }

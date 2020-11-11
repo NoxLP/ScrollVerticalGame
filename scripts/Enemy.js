@@ -14,29 +14,60 @@ export class Enemy extends CollisionableObject {
     this.column = column;
     this.initialX = x;
     this.initialY = y;
+    this.lastMove = null;
+    this.moves = 0;
   }
   moveEnemyLeftToRight() {
     if(this.x < this.initialX + game.enemyTotalStepPx) {
+      console.log("leftToRight");
       this.x += game.enemyFrameStep;
-      window.requestAnimationFrame(moveEnemyLeftToRight)
+      this.update();
+      window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); });
     } else {
+      this.lastMove = "right";
       this.initialX = this.x;
+
+      if(this.moves < 4) {
+        this.moves++;
+        setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); }) }, 500);
+      } else {
+        this.moves = 0;
+        this.moveEnemyDown();
+      }
     }
   }
   moveEnemyRightToLeft() {
     if(this.x > this.initialX - game.enemyTotalStepPx) {
+      console.log("RightToleft");
       this.x -= game.enemyFrameStep;
-      window.requestAnimationFrame(moveEnemyRightToLeft)
+      this.update();
+      window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); });
     } else {
+      this.lastMove = "left";
       this.initialX = this.x;
+      
+      if(this.moves < 4) {
+        this.moves++;
+        setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); }) }, 500);
+      } else {
+        this.moves = 0;
+        this.moveEnemyDown();
+      }
     }
   }
   moveEnemyDown() {
     if(this.y < this.initialY + game.canvasRowHeight) {
+      console.log("down");
       this.y += game.enemyFrameStep;
-      window.requestAnimationFrame(moveEnemyDown)
+      this.update();
+      window.requestAnimationFrame(() => { this.moveEnemyDown(); });
     } else {
       this.initialY = this.y;
+      if(this.lastMove === "right") {
+        this.moveEnemyRightToLeft();
+      } else {
+        this.moveEnemyLeftToRight();
+      }
     }
   }
 }
