@@ -21,7 +21,6 @@ export class Player extends CollisionableObject {
   moveLeft = function () {
     if (this.x > game.step && game.keysDown.ArrowLeft) {
       this.x -= game.step;
-      this.update();
       window.requestAnimationFrame(() => { this.moveLeft(); });
     }
   }
@@ -31,7 +30,6 @@ export class Player extends CollisionableObject {
   moveRight = function () {
     if (this.x + this.width < game.width - game.step && game.keysDown.ArrowRight) {
       this.x += game.step;
-      this.update();
       window.requestAnimationFrame(() => { this.moveRight(); });
     }
   }

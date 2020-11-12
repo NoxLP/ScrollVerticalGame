@@ -8,12 +8,25 @@ export class DrawableObject {
     this.elem = domElement;
     this.width = width;
     this.height = height;
-    this.x = x;
-    this.y = y;
+    this._x = x;
+    this._y = y;
 
     this.update();
     game.canvas.appendChild(this.elem);
   }
+  get x() { return this._x; }
+  set x(value) { 
+    this._x = value;
+    this.updateX();
+  }
+  get y() { return this._y; }
+  set y(value) {
+    this._y = value;
+    this.updateY();
+  }
+
+  updateX() { this.elem.style.left = `${this._x}px`; }
+  updateY() { this.elem.style.top = `${this._y}px`; }
   /**
    * Update DOM position and size
    */
@@ -21,7 +34,11 @@ export class DrawableObject {
     this.elem.style.width = `${this.width}px`;
     this.elem.style.height = `${this.height}px`;
 
-    this.elem.style.left = `${this.x}px`;
-    this.elem.style.top = `${this.y}px`;
+    this.elem.style.left = `${this._x}px`;
+    this.elem.style.top = `${this._y}px`;
   }
 }
+/*
+var coordinate = obj.x; => get x()
+obj.x = 4 => set x()
+*/

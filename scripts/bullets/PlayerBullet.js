@@ -54,7 +54,6 @@ export class PlayerBullet extends CollisionableObject {
         game.canvas.removeChild(this.elem);
         game.removeEnemy(collidingEnemy);
       } else {
-        this.update();
         window.requestAnimationFrame(() => { this.move(); });
       }
     } else {
