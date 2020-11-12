@@ -1,5 +1,8 @@
 import { Enemy } from "./Enemy.js";
 
+/**
+ * Class for control them all
+ */
 export class Game {
   constructor(enemiesPerRow) {
     this.step = 9;
@@ -9,9 +12,11 @@ export class Game {
     this.bulletTimeout = 250;
 
     this.canvas = document.getElementById("game");
-    this.width = 1100;
-    this.height = 900;
-    this.canvasRowHeight = this.height / 7;
+    this.width = 1500;
+    this.height = 950;
+    this.padding = [20, 10];
+    this.canvasRowHeight = (this.height - (this.padding[1] * 2)) / 7;
+    this.canvasColumnWidth = (this.width - (this.padding[0] * 2)) / enemiesPerRow;
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
 
@@ -21,7 +26,9 @@ export class Game {
       [80, 80]
     ];
     this.playerSize = [80, 80];
-    this.playerInitialCoords = [Math.round((this.width / 2) - (this.playerSize[0] / 2)), this.canvasRowHeight * 6];
+    this.playerInitialCoords = [
+      (this.width / 2) - (this.playerSize[0] / 2) + this.padding[0], 
+      (this.canvasRowHeight * 6) + (this.canvasRowHeight / 2) - (this.playerSize[1] / 2) - this.padding[1]];
     this.bulletSize = [60, 50];
 
     this.enemiesPerRow = enemiesPerRow;
@@ -46,7 +53,7 @@ export class Game {
     */
   }
   /**
-   * Returns DOM coordinates
+   * Returns DOM coordinates for initial enemy position
    * @param {number} row 
    * @param {number} column 
    */
@@ -54,9 +61,10 @@ export class Game {
     //console.log(this.game.canvas.style.width)
     //console.log(this.enemiesPerRow)
     //margen + ((total ancho / numero de naves) * numero nave actual)
+    const enemyType = Math.ceil(row / 2);
     return [
-      (parseInt(this.canvas.style.width) / this.enemiesPerRow) * column,
-      this.canvasRowHeight * row
+      (this.canvasColumnWidth * column) + (this.canvasColumnWidth * 0.5) + this.padding[0] - this.enemiesSize[enemyType][0], 
+      (this.canvasRowHeight * row) + (this.canvasRowHeight * 0.5) + this.padding[1] - this.enemiesSize[enemyType][1]
     ];
   }
   /**
@@ -102,9 +110,13 @@ export class Game {
     //****** TODO **************/
     //dar puntos al jugador que haya matado al enemigo
   }
+  /**
+   * Create explosion when enemy gets destroyed
+   * @param {CollisionableObject} collidingObject Enemy destroyed
+   */
   createExplosion(collidingObject) {
     let explosion = new Image();
-    explosion.src = "../assets/images/spaceships/explosion2.gif";
+    explosion.src = "../assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
     explosion.style.width = `${collidingObject.width}px`;
     explosion.style.height = `${collidingObject.height}px`;
@@ -117,7 +129,9 @@ export class Game {
     },
     800);
   }
- 
+  /**
+   * Move all enemies in the classical pattern
+   */
   moveEnemies() {
     /*
     Van de izquierda a derecha

@@ -1,8 +1,11 @@
 import { DrawableObject } from "./DrawableObject.js";
 
+/**
+ * All objects that can collide with other obects must inherit from this. If an object collides with others, it must be draw too, therefore this object inherits from DrawableObject.
+ */
 export class CollisionableObject extends DrawableObject {
-  constructor(domElement, x, y, width, height, topBottom = "top", leftRight = "left") {
-    super(domElement, x, y, width, height, topBottom, leftRight);
+  constructor(domElement, x, y, width, height) {
+    super(domElement, x, y, width, height);
     this.collisionable = true;
   }
   /**

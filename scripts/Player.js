@@ -2,6 +2,9 @@ import { CollisionableObject } from "./CollisionableObject.js";
 import { game } from "./main.js";
 import { PlayerBullet } from "./bullets/PlayerBullet.js";
 
+/**
+ * Player class
+ */
 export class Player extends CollisionableObject {
   constructor() {
     let elem = new Image(); //document.getElementById('player');
@@ -12,6 +15,9 @@ export class Player extends CollisionableObject {
     this.lastBulletTime = null;
     this.shootTimer;
   }
+  /**
+   * Move the player ship one step left
+   */
   moveLeft = function () {
     if (this.x > game.step && game.keysDown.ArrowLeft) {
       this.x -= game.step;
@@ -19,6 +25,9 @@ export class Player extends CollisionableObject {
       window.requestAnimationFrame(() => { this.moveLeft(); });
     }
   }
+  /**
+   * Move the player ship one step right
+   */
   moveRight = function () {
     if (this.x + this.width < game.width - game.step && game.keysDown.ArrowRight) {
       this.x += game.step;
@@ -26,6 +35,9 @@ export class Player extends CollisionableObject {
       window.requestAnimationFrame(() => { this.moveRight(); });
     }
   }
+  /**
+   * Create bullets while the spacebar is pressed
+   */
   shoot() {
     if(game.keysDown.Space) {
       //console.log("BULLET")

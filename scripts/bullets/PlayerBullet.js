@@ -1,6 +1,9 @@
 import { CollisionableObject } from "../CollisionableObject.js";
 import { game } from "../main.js";
 
+/**
+ * Class for player bullets
+ */
 export class PlayerBullet extends CollisionableObject {
   constructor(x, y) {
     let elem = new Image(); //document.getElementById('player');
@@ -8,6 +11,9 @@ export class PlayerBullet extends CollisionableObject {
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1]);
   }
+  /**
+   * Iterates all enemies to see if collides with one of them
+   */
   isCollidingWithAnEnemy() {
     //console.log("isCollidingWithAnEnemy", game.enemies)
     //This could be more efficiente storing enemies by their coords in some sort of grid, so one should only check for collisions in the same column of the bullet
@@ -22,6 +28,9 @@ export class PlayerBullet extends CollisionableObject {
     }
     return null;
   }
+  /**
+   * move the bullet always up
+   */
   move() {
     /*
     Aumentas y en x pixeles (game.bulletStep)

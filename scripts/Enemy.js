@@ -1,6 +1,9 @@
 import { CollisionableObject } from "./CollisionableObject.js";
 import { game } from "./main.js";
 
+/**
+ * Class for enemies
+ */
 export class Enemy extends CollisionableObject {
   constructor(type, x, y, row, column) {
     let elem = new Image();
@@ -17,6 +20,9 @@ export class Enemy extends CollisionableObject {
     this.lastMove = null;
     this.moves = 0;
   }
+  /**
+   * Move enemy to the right. Part of the classical movement pattern
+   */
   moveEnemyLeftToRight() {
     if(this.x < this.initialX + game.enemyTotalStepPx) {
       console.log("leftToRight");
@@ -36,6 +42,9 @@ export class Enemy extends CollisionableObject {
       }
     }
   }
+  /**
+   * Move enemy to the left. Part of the classical movement pattern
+   */
   moveEnemyRightToLeft() {
     if(this.x > this.initialX - game.enemyTotalStepPx) {
       console.log("RightToleft");
@@ -55,6 +64,9 @@ export class Enemy extends CollisionableObject {
       }
     }
   }
+  /**
+   * Move enemy down. Part of the classical movement pattern
+   */
   moveEnemyDown() {
     if(this.y < this.initialY + game.canvasRowHeight) {
       console.log("down");
