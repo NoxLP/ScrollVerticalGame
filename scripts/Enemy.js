@@ -15,71 +15,77 @@ export class Enemy extends CollisionableObject {
     this.type = type;
     this.row = row;
     this.column = column;
-    this.initialX = x;
-    this.initialY = y;
     this.lastMove = null;
-    this.moves = 0;
+  }
+  get canvasColumn() { return Math.round(this.x / game.canvasColumnWidth); }
+  get canvasRow() { return Math.round(this.y / game.canvasRowHeight); }
+  moveRightToX(target) {
+    if(this.x < target) {
+      console.log("leftToRight");
+      this.x += game.enemyFrameStep;
+      this.update();
+      window.requestAnimationFrame(() => { this.moveRightToX(target); });
+    } else {
+      console.log("TIMEOUT")
+      setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); }) }, 500);
+    }
+  }
+  moveLeftToX(target) {
+    if(this.x > target) {
+      console.log("leftToRight");
+      this.x -= game.enemyFrameStep;
+      this.update();
+      window.requestAnimationFrame(() => { this.moveLeftToX(target); });
+    } else {
+      console.log("TIMEOUT")
+      setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); }) }, 500);
+    }
+  }
+  moveDownToY(target) {
+    if(this.y < target) {
+      console.log("moveDown")
+      this.y += game.enemyFrameStep;
+      this.update();
+      window.requestAnimationFrame(() => { this.moveDownToY(target); });
+    } else {
+      if(this.lastMove === "right") {
+        setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); }) }, 500);
+      } else {
+        setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); }) }, 500);
+      }
+    }
   }
   /**
    * Move enemy to the right. Part of the classical movement pattern
    */
   moveEnemyLeftToRight() {
-    if(this.x < this.initialX + game.enemyTotalStepPx) {
-      console.log("leftToRight");
-      this.x += game.enemyFrameStep;
-      this.update();
-      window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); });
+    if(!game.enemyIsInCanvasColumn(game.enemiesPerRow - 1, game.canvasColumns - 1)) {
+      const nextCanvasColumnX = game.getXOfCanvasColumn(this.canvasColumn + 1);
+      console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
+      this.moveRightToX(nextCanvasColumnX);
     } else {
       this.lastMove = "right";
-      this.initialX = this.x;
-
-      if(this.moves < 4) {
-        this.moves++;
-        setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); }) }, 500);
-      } else {
-        this.moves = 0;
-        this.moveEnemyDown();
-      }
+      this.moveEnemyDown();
     }
   }
   /**
    * Move enemy to the left. Part of the classical movement pattern
    */
   moveEnemyRightToLeft() {
-    if(this.x > this.initialX - game.enemyTotalStepPx) {
-      console.log("RightToleft");
-      this.x -= game.enemyFrameStep;
-      this.update();
-      window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); });
+    if(!game.enemyIsInCanvasColumn(0, -1)) {
+      const nextCanvasColumnX = game.getXOfCanvasColumn(this.canvasColumn - 1);
+      console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
+      this.moveLeftToX(nextCanvasColumnX);
     } else {
       this.lastMove = "left";
-      this.initialX = this.x;
-      
-      if(this.moves < 4) {
-        this.moves++;
-        setTimeout(() => { window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); }) }, 500);
-      } else {
-        this.moves = 0;
-        this.moveEnemyDown();
-      }
+      this.moveEnemyDown();
     }
   }
   /**
    * Move enemy down. Part of the classical movement pattern
    */
   moveEnemyDown() {
-    if(this.y < this.initialY + game.canvasRowHeight) {
-      console.log("down");
-      this.y += game.enemyFrameStep;
-      this.update();
-      window.requestAnimationFrame(() => { this.moveEnemyDown(); });
-    } else {
-      this.initialY = this.y;
-      if(this.lastMove === "right") {
-        this.moveEnemyRightToLeft();
-      } else {
-        this.moveEnemyLeftToRight();
-      }
-    }
+    const nextCanvasRowY = game.getYOfCanvasRow(this.canvasRow + 1);
+    this.moveDownToY(nextCanvasRowY);
   }
 }

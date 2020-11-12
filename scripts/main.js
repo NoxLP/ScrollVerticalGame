@@ -1,10 +1,12 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
+import { BonusEnemy } from "./BonusEnemy.js";
 
 export const game = new Game(5);
 game.createEnemies();
 const player = new Player();
 console.log(game);
+var bonus = new BonusEnemy(400,550);
 
 document.addEventListener("keydown", function (e) {
   if (e.key === "ArrowLeft" && !game.keysDown.ArrowRight && !game.keysDown.ArrowLeft) {

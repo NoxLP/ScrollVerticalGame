@@ -6,7 +6,7 @@ import { Enemy } from "./Enemy.js";
 export class Game {
   constructor(enemiesPerRow) {
     this.step = 9;
-    this.enemyFrameStep = 4;
+    this.enemyFrameStep = 3;
     this.enemyTotalStepPx = 36;
     this.bulletStep = 15;
     this.bulletTimeout = 250;
@@ -14,25 +14,28 @@ export class Game {
     this.canvas = document.getElementById("game");
     this.width = 1500;
     this.height = 950;
-    this.padding = [20, 10];
-    this.canvasRowHeight = (this.height - (this.padding[1] * 2)) / 7;
-    this.canvasColumnWidth = (this.width - (this.padding[0] * 2)) / enemiesPerRow;
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
+    
+    this.padding = [20, 10];
+    this.canvasRows = 9;
+    this.canvasColumns = enemiesPerRow + 2;
+    this.canvasRowHeight = (this.height - (this.padding[1] * 2)) / this.canvasRows;
+    this.canvasColumnWidth = (this.width - (this.padding[0] * 2)) / this.canvasColumns;
 
     this.enemiesSize = [
       [50, 50],
       [65, 65],
       [80, 80]
     ];
+    this.bonusSize = [100,150];
+    this.enemies = [];// = new Array(5).fill(new Array(this.canvasColumns));
+    this.enemiesPerRow = enemiesPerRow;
     this.playerSize = [80, 80];
     this.playerInitialCoords = [
       (this.width / 2) - (this.playerSize[0] / 2) + this.padding[0], 
-      (this.canvasRowHeight * 6) + (this.canvasRowHeight / 2) - (this.playerSize[1] / 2) - this.padding[1]];
+      (this.canvasRowHeight * (this.canvasRows - 1)) + (this.canvasRowHeight / 2) - (this.playerSize[1] / 2) - this.padding[1]];
     this.bulletSize = [60, 50];
-
-    this.enemiesPerRow = enemiesPerRow;
-    this.enemies = [];// = new Array(5).fill(new Array(this.enemiesPerRow));
 
     this.keysDown = {
       ArrowLeft: false,
@@ -52,19 +55,21 @@ export class Game {
     ]
     */
   }
+  getXOfCanvasColumn(column) { return this.canvasColumnWidth * column; }
+  getYOfCanvasRow(row) { return this.canvasRowHeight * row; }
   /**
    * Returns DOM coordinates for initial enemy position
    * @param {number} row 
    * @param {number} column 
    */
-  _calculateCoordinatesByPosition(row, column) {
+  calculateCoordinatesByPosition(row, column) {
     //console.log(this.game.canvas.style.width)
-    //console.log(this.enemiesPerRow)
+    //console.log(this.canvasColumns)
     //margen + ((total ancho / numero de naves) * numero nave actual)
     const enemyType = Math.ceil(row / 2);
     return [
-      (this.canvasColumnWidth * column) + (this.canvasColumnWidth * 0.5) + this.padding[0] - this.enemiesSize[enemyType][0], 
-      (this.canvasRowHeight * row) + (this.canvasRowHeight * 0.5) + this.padding[1] - this.enemiesSize[enemyType][1]
+      (this.canvasColumnWidth * column) + this.padding[0] * 3 - (this.enemiesSize[enemyType][0] / 2), 
+      (this.canvasRowHeight * row) + (this.canvasRowHeight * 0.5) + this.padding[1] - (this.enemiesSize[enemyType][1] / 2)
     ];
   }
   /**
@@ -95,12 +100,16 @@ export class Game {
     for(let i = 0; i < 5; i++) {
       this.enemies.push([]);
       for(let j = 0; j < this.enemiesPerRow; j++) {
-        const coords = this._calculateCoordinatesByPosition(i, j);
+        const coords = this.calculateCoordinatesByPosition(i, j);
         this.enemies[i].push(new Enemy(Math.ceil(i / 2), coords[0], coords[1], i, j));
       }
     }
     console.log(this.enemies)
   }
+  /**
+   * Remove enemy
+   * @param {Enemy} enemy Enemy to remove
+   */
   removeEnemy(enemy) {
     //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
     console.log(enemy)
@@ -128,6 +137,24 @@ export class Game {
       this.canvas.removeChild(explosion);
     },
     800);
+  }
+  /**
+   * Returns true if enemy from enemies column is on canvas column. Used by the enemies movement pattern to decide when to move down.
+   * @param {number} enemyColumn Column in enemies array
+   * @param {number} canvasColumn Column in canvas
+   */
+  enemyIsInCanvasColumn(enemyColumn, canvasColumn) {
+    const enemy = this.enemies[0][enemyColumn];
+    return enemy.x > (canvasColumn * this.canvasColumnWidth) && enemy.x < (canvasColumn + 1) * this.canvasColumnWidth;
+  }
+  /**
+   * Returns true if enemy from enemies row is on canvas row. Used by the enemies movement pattern.
+   * @param {number} enemyRow Row in enemies array
+   * @param {number} canvasRow Row in canvas
+   */
+  enemyIsInCanvasRow(enemyRow, canvasRow) {
+    const enemy = this.enemies[enemyRow][0];
+    return enemy.y >= canvasRow * this.canvasRowHeight && enemy.x < (canvasColumn + 1) * this.canvasColumnWidth;
   }
   /**
    * Move all enemies in the classical pattern

@@ -11,14 +11,17 @@ button {
   background-size: 100% 108%;
   background-repeat: no-repeat;
   position: relative;
+  margin-left: 10px;
 }
 #player {
   position: absolute;
+  filter: brightness(1.2) contrast(125%);
 }
 
 .enemy {
   position: absolute;
   transform: rotate(180deg);
+  filter: brightness(1.2) contrast(107%);
 }
 .bullet {
   position: absolute;
@@ -28,4 +31,10 @@ button {
 }
 .explosion {
   position: absolute;
+}
+
+.bonusEnemy{
+  position: absolute;
+  transform: rotate(90deg);
+  filter: brightness(1.5) contrast(110%);
 }
