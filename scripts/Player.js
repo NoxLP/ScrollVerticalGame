@@ -14,6 +14,12 @@ export class Player extends CollisionableObject {
 
     this.lastBulletTime = null;
     this.shootTimer;
+    this.lives = 3;
+  }
+  teleportToInitialPosition() {
+    this.x = game.playerInitialCoords[0];
+    this.y = game.playerInitialCoords[1];
+    this.elem.style.display = "inline";
   }
   /**
    * Move the player ship one step left

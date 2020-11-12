@@ -1,5 +1,5 @@
 import { CollisionableObject } from "./CollisionableObject.js";
-import { game } from "./main.js";
+import { game, player } from "./main.js";
 
 /**
  * Class for enemies
@@ -24,29 +24,44 @@ export class Enemy extends CollisionableObject {
   get canvasRow() { return Math.round(this.y / game.canvasRowHeight); }
   moveRightToTarget(target) {
     if(this.x < target) {
-      console.log("leftToRight");
+      //console.log("leftToRight");
       this.x += game.enemyFrameStep;
-      this.animationFrameId = window.requestAnimationFrame(() => { this.moveRightToTarget(target); });
+      if (this.collideWith(player)) {
+        game.enemyCollidesWithPlayer(this);
+        return;
+      } else {
+        this.animationFrameId = window.requestAnimationFrame(() => { this.moveRightToTarget(target); });
+      }
     } else {
-      console.log("TIMEOUT")
+      //console.log("TIMEOUT")
       this.animationFrameId = setTimeout(() => { this.animationFrameId = window.requestAnimationFrame(() => { this.moveEnemyLeftToRight(); }) }, 500);
     }
   }
   moveLeftToTarget(target) {
     if(this.x > target) {
-      console.log("leftToRight");
+      //console.log("leftToRight");
       this.x -= game.enemyFrameStep;
-      this.animationFrameId = window.requestAnimationFrame(() => { this.moveLeftToTarget(target); });
+      if (this.collideWith(player)) {
+        game.enemyCollidesWithPlayer(this);
+        return;
+      } else {
+        this.animationFrameId = window.requestAnimationFrame(() => { this.moveLeftToTarget(target); });
+      }
     } else {
-      console.log("TIMEOUT")
+      //console.log("TIMEOUT")
       this.animationFrameId = setTimeout(() => { this.animationFrameId = window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); }) }, 500);
     }
   }
   moveDownToTarget(target) {
     if(this.y < target) {
-      console.log("moveDown")
+      //console.log("moveDown")
       this.y += game.enemyFrameStep;
-      this.animationFrameId = window.requestAnimationFrame(() => { this.moveDownToTarget(target); });
+      if (this.collideWith(player)) {
+        game.enemyCollidesWithPlayer(this);
+        return;
+      } else {
+        this.animationFrameId = window.requestAnimationFrame(() => { this.moveDownToTarget(target); });
+      }
     } else {
       if(this.lastMove === "right") {
         this.animationFrameId = setTimeout(() => { this.animationFrameId = window.requestAnimationFrame(() => { this.moveEnemyRightToLeft(); }) }, 500);
@@ -61,7 +76,7 @@ export class Enemy extends CollisionableObject {
   moveEnemyLeftToRight() {
     if(!game.enemyIsInCanvasColumn(game.enemiesPerRow - 1, game.canvasColumns - 1)) {
       const nextCanvasColumnX = game.getXOfCanvasColumn(this.canvasColumn + 1);
-      console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
+      //console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
       this.moveRightToTarget(nextCanvasColumnX);
     } else {
       this.lastMove = "right";
@@ -87,5 +102,15 @@ export class Enemy extends CollisionableObject {
   moveEnemyDown() {
     const nextCanvasRowY = game.getYOfCanvasRow(this.canvasRow + 1);
     this.moveDownToTarget(nextCanvasRowY);
+  }
+  teleportToInitialPosition() {
+    let coords = game.calculateCoordinatesByPosition(this.row, this.column);
+    this.x = coords[0];
+    this.y = coords[1];
+    if(this.elem.style.display === "none") {
+      this.elem.style.display = "inline";
+    }
+    if(!this.collisionable)
+      this.collisionable = true;
   }
 }

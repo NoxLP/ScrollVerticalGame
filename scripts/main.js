@@ -1,14 +1,16 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
-import { BonusEnemy } from "./BonusEnemy.js";
 
 export const game = new Game(5);
 game.createEnemies();
-const player = new Player();
+export const player = new Player();
 console.log(game);
 
 
 document.addEventListener("keydown", function (e) {
+  if(player.elem.style.display === "none")
+    return;
+
   if (e.key === "ArrowLeft" && !game.keysDown.ArrowRight && !game.keysDown.ArrowLeft) {
     game.keysDown.ArrowLeft = true;
     player.moveLeft();
@@ -25,6 +27,9 @@ document.addEventListener("keydown", function (e) {
 });
 
 document.addEventListener("keyup", e => {
+  if(player.elem.style.display === "none")
+    return;
+    
   if (e.key === "ArrowLeft") {
     game.keysDown.ArrowLeft = false;
   }
