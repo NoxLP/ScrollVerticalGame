@@ -89,7 +89,7 @@ export class Enemy extends CollisionableObject {
   moveEnemyRightToLeft() {
     if(!game.enemyIsInCanvasColumn(0, 0)) {
       const nextCanvasColumnX = game.getXOfCanvasColumn(this.canvasColumn - 1);
-      console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
+      //console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
       this.moveLeftToTarget(nextCanvasColumnX);
     } else {
       this.lastMove = "left";

@@ -11,13 +11,9 @@ body {
 button {
   margin: 10px;
 }
-header {
-  height: 90px;
-  padding: 0 30px;
-}
 
 #background {
-  background: url("../assets/images/background/blue_milky_way_galaxy.jpg");
+  background: url("../assets/images/background/background0.jpg");
   background-size: 100% 108%;
   background-repeat: no-repeat;
   top: 0;
@@ -25,56 +21,6 @@ header {
   width: 1900px;
   height: 970px;
   margin: 0 auto;
-}
-#headerTitles {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  height: 30px;
-  padding: 0px 30px;
-  font-family: "pointsFont";
-}
-#headerCounters {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  height: 60px;
-}
-#livesCounter {
-  position: relative;
-  display: inline;
-  box-shadow: 4px 4px 4px midnightblue;
-  filter: brightness(1.5);
-  margin-top: -3px;
-}
-#livesContainer {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  height: 40px;
-  margin-top: 3.5px;
-  padding: 0px 15px;
-}
-#livesContainer > img {
-  transform: scale(1, 0.3) rotate(-90deg);
-  filter: brightness(1.3) contrast(110%);
-  margin: 0px -22px;
-}
-#pointsCounter {
-  position: relative;
-  display: inline;
-  color: white;
-  text-shadow: -1.5px 1px rgb(92, 193, 218);
-  font-family: "pointsFont";
-  font-size: 40px;
-  text-align: center;
-  line-height: 49px;
-  filter: brightness(1.5);
-  margin-top: -3px;
 }
 #game {
   position: relative;
@@ -85,25 +31,6 @@ header {
   filter: brightness(1.2) contrast(125%);
 }
 
-.headerInfoBoxes {
-  height: 46px;
-  width: 270px;
-  margin: 20px;
-  background-color: rgba(0, 0, 0, 0.4);
-  border: 2px solid rgb(97, 74, 160);
-  border-radius: 10px;
-  box-shadow: -4px 4px 4px midnightblue;
-}
-.headerInfoBoxes::before {
-  position: absolute;
-  background-image: url("../assets/images/textures/grey.png");
-  content: "";
-  display: inline-block;
-  top: 0; left: 0; width: 100%; height: 100%;
-  filter: brightness(0.2);
-  opacity: 0.4;
-  border-radius: 10px;
-}
 .enemy {
   position: absolute;
   transform: rotate(180deg);
@@ -118,9 +45,23 @@ header {
 .explosion {
   position: absolute;
 }
-.bonusEnemy{
+.bonusEnemy {
   position: absolute;
   display: inline-block;
   transform: rotate(90deg);
   filter: brightness(1.5) contrast(110%);
+}
+.pointsPopup {
+  position: absolute;
+  display: inline-block;
+  color: white;
+  text-shadow: -1.5px 1px rgb(92, 193, 218);
+  font-family: "pointsFont";
+  font-size: 30px;
+}
+.pointsPopupAnimation {
+  opacity: 0;
+  font-size: 0;
+  transition: all 1.5s ease-out;
+  transition-property: opacity, font-size;
 }

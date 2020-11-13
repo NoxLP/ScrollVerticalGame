@@ -14,12 +14,21 @@ export class Player extends CollisionableObject {
 
     this.lastBulletTime = null;
     this.shootTimer;
-    this.lives = 3;
+    this._lives = 3;
   }
-  teleportToInitialPosition() {
-    this.x = game.playerInitialCoords[0];
-    this.y = game.playerInitialCoords[1];
-    this.elem.style.display = "inline";
+  get lives() { return this._lives; }
+  loseLive() {
+    let live = document.getElementById(`live${this._lives}`);
+    live.style.filter = "brightness(0.3)";
+    live.style.transition = "filter 1s ease-out";
+    this._lives--;
+  }
+  resetLives() {
+    this._lives = 3;
+    for(let i = 1; i < 4; i++) {
+      let live = document.getElementById(`live${i}`);
+      live.style.filter = "";
+    }
   }
   /**
    * Move the player ship one step left
@@ -60,5 +69,10 @@ export class Player extends CollisionableObject {
       clearInterval(this.shootTimer);
       this.shootTimer = null;
     }
+  }
+  teleportToInitialPosition() {
+    this.x = game.playerInitialCoords[0];
+    this.y = game.playerInitialCoords[1];
+    this.elem.style.display = "inline";
   }
 }

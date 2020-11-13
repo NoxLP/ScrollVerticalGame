@@ -1,6 +1,6 @@
 import { Enemy } from "./Enemy.js";
 import { BonusEnemy } from "./BonusEnemy.js";
-import { player } from "./main.js";
+import { game, player } from "./main.js";
 import { PointsCounter } from "./PointsCounter.js";
 
 /**
@@ -43,8 +43,10 @@ export class Game {
       [,,,,,,,]
     ]
     */
-    this.enemies = [];
     this.bonus;
+    this.bonusTimeout = 10000;
+    this.bonusPointsRange = [50, 450];
+    this.enemies = [];
     this.enemiesPerRow = enemiesPerRow;
     this.playerSize = [80, 80];
     this.playerInitialCoords = [
@@ -67,6 +69,60 @@ export class Game {
     this._points = total;
     this.pointsCounter.showedPoints = total;
   }
+
+  /************************************************************************************************************/
+  /****************************************** MODEL - CREATE/REMOVE *******************************************/
+
+  /**
+   * Remove enemy
+   * @param {Enemy} enemy Enemy to remove
+   */
+  removeEnemy(enemy) {
+    //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
+    console.log(enemy)
+    enemy.elem.style.display = "none";
+    enemy.collisionable = false;
+    //this.canvas.removeChild(enemy.elem);
+    //this.enemies[enemy.row][enemy.column] = null;
+    cancelAnimationFrame(enemy.animationFrameId);
+    clearTimeout(enemy.animationFrameId);
+    
+    this.points += (enemy.type + 1) * 100;
+
+    if(this.enemies.every(x => x.every(e => e.elem.style.display !== "none"))) {
+      this.playerWins();
+    }
+  }
+  /**
+   * Player killed, remove player
+   */
+  removePlayer() {
+    player.elem.style.display = "none";
+    player.collisionable = false;
+    for(let key in this.keysDown) {
+      this.keysDown[key] = false;
+    }
+  }
+  /**
+   * Remove bonus ship
+   */
+  removeBonusEnemy() {
+    let points = Math.round((Math.random() * this.bonusPointsRange[1]) + this.bonusPointsRange[0]);
+    let pointsPopup = document.createElement("p");
+    pointsPopup.innerText = points;
+    pointsPopup.style.left = `${this.bonus.x + this.bonus.width + 25}px`;
+    pointsPopup.style.top = `${this.bonus.y}px`;
+    pointsPopup.classList.add("pointsPopup");
+    this.canvas.appendChild(pointsPopup);
+    
+    setTimeout(() => { pointsPopup.classList.add("pointsPopupAnimation"); }, 50);
+    setTimeout(() => { this.canvas.removeChild(pointsPopup); }, 2000);
+
+    this.points += points;
+    this.createExplosion(this.bonus);
+    this.bonus.resetPosition();
+    setTimeout(() => { this.bonus.move(); }, this.bonusTimeout);
+  }
   /**
    * Returns DOM coordinates for initial enemy position
    * @param {number} row 
@@ -80,10 +136,6 @@ export class Game {
     return [
       (this.canvasColumnWidth * (column + 0.5)) - (this.enemiesSize[enemyType][0] / 2),
       (this.canvasRowHeight * (row + 1.5)) - (this.enemiesSize[enemyType][1] / 2)
-      /*
-      (this.canvasColumnWidth * column) + this.padding[0] * 3 - (this.enemiesSize[enemyType][0] / 2),
-      (this.canvasRowHeight * row) + (this.canvasRowHeight * 0.5) + this.padding[1] - (this.enemiesSize[enemyType][1] / 2)
-      */
     ];
   }
   /**
@@ -121,29 +173,6 @@ export class Game {
     console.log(this.enemies)
   }
   /**
-   * Remove enemy
-   * @param {Enemy} enemy Enemy to remove
-   */
-  removeEnemy(enemy) {
-    //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
-    console.log(enemy)
-    enemy.elem.style.display = "none";
-    enemy.collisionable = false;
-    //this.canvas.removeChild(enemy.elem);
-    //this.enemies[enemy.row][enemy.column] = null;
-    cancelAnimationFrame(enemy.animationFrameId);
-    clearTimeout(enemy.animationFrameId);
-    
-    this.points += (enemy.type + 1) * 100;
-  }
-  removePlayer() {
-    player.elem.style.display = "none";
-    player.collisionable = false;
-    for(let key in this.keysDown) {
-      this.keysDown[key] = false;
-    }
-  }
-  /**
    * Create explosion when enemy gets destroyed
    * @param {CollisionableObject} collidingObject Enemy destroyed
    */
@@ -151,8 +180,8 @@ export class Game {
     let explosion = new Image();
     explosion.src = "../assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
-    explosion.style.width = `${collidingObject.width}px`;
-    explosion.style.height = `${collidingObject.height}px`;
+    explosion.style.width = `${collidingObject.width + 25}px`;
+    explosion.style.height = `${collidingObject.height + 25}px`;
     explosion.style.top = `${collidingObject.y}px`;
     explosion.style.left = `${collidingObject.x}px`;
 
@@ -160,9 +189,11 @@ export class Game {
     setTimeout(() => {
       this.canvas.removeChild(explosion);
     },
-    500);
+    400);
   }
-
+  /**
+   * Create bonus ship and starts movement
+   */
   createBonusEnemy() {
     /* 
     Creamos la nave.
@@ -171,72 +202,22 @@ export class Game {
     Despues de 30 seg vuelve a ser visible en la posición de salida.
     
     */
-    this.bonus = new BonusEnemy(0,0);
-    this.bonus.move();
-  }
-
-  cancelAllEnemiesMovement() {
-    for (let i = 0; i < this.enemies.length; i++) {
-      for (let j = 0; j < this.enemies[i].length; j++) {
-        cancelAnimationFrame(this.enemies[i][j].animationFrameId);
-        clearTimeout(this.enemies[i][j].animationFrameId);
-      }
-    }
-  }
-  reset() {
-    player.teleportToInitialPosition();
-    //All enemies to initial position
-    for (let i = 0; i < this.enemies.length; i++) {
-      for (let j = 0; j < this.enemies[i].length; j++) {
-        this.enemies[i][j].teleportToInitialPosition();
-      }
-    }
-  }
-  enemyCollidesWithPlayer(enemy) {
-    /*
-    if vidas > 1
-      Explosiones
-      desaparece enemigo
-      desaparece player
-      parar enemigos
-      parar nave bonus
-      Jugador pierde vida => player.lives
-      En el contador pierde una vida => classList.add(liveLost)
-      ¿mensaje?
-      TIMEOUT
-      Reset
-        jugador volver a position inicial
-        enemigos volver a position inicial
-          moverlos a su sitio
-          dejar de ser transparentes
-          vuelvan a ser colisionables
-    else
-      game over
-    */
-    if(player.lives > 1) {
-      this.createExplosion(player);
-      this.createExplosion(enemy);
-      this.removeEnemy(enemy);
-      this.removePlayer();
-      this.cancelAllEnemiesMovement();
-      this.bonus.reset();
-      console.log(document.getElementById(`live${player.lives}`));
-      let live = document.getElementById(`live${player.lives}`);
-      live.style.filter = "brightness(0.3)";
-      live.style.transition = "filter 1s ease-out";
-      player.lives--;
-      setTimeout(() => {alert("¡¡¡Has perdido una vida!!!");}, 1000); 
-      setTimeout(() => {this.reset();}, 5000);
-    } else {
-      //TODO - game over
-    }
+    this.bonus = new BonusEnemy();
+    setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5))
   }
 
   /************************************************************************************************************/
   /********************************************* ENEMIES MOVEMENT *********************************************/
-  /************************************************************************************************************/
 
+  /**
+   * Get left-most x coordinate of column
+   * @param {number} column Column index
+   */
   getXOfCanvasColumn(column) { return this.canvasColumnWidth * (column + 0.5); }
+  /**
+   * Get top-most y coordinate of row
+   * @param {number} row Row index
+   */
   getYOfCanvasRow(row) { return this.canvasRowHeight * (row + 0.5); }
   /**
    * Returns true if enemy from enemies column is on canvas column. Used by the enemies movement pattern to decide when to move down.
@@ -289,5 +270,80 @@ export class Game {
         enemy.moveEnemyLeftToRight();
       }
     }
+  }
+  /**
+   * Cancel movement of all enemies
+   */
+  cancelAllEnemiesMovement() {
+    for (let i = 0; i < this.enemies.length; i++) {
+      for (let j = 0; j < this.enemies[i].length; j++) {
+        cancelAnimationFrame(this.enemies[i][j].animationFrameId);
+        clearTimeout(this.enemies[i][j].animationFrameId);
+      }
+    }
+  }
+
+  /************************************************************************************************************/
+  /************************************************* HELPERS **************************************************/
+
+  /**
+   * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
+   */
+  reset() {
+    player.teleportToInitialPosition();
+    //All enemies to initial position
+    for (let i = 0; i < this.enemies.length; i++) {
+      for (let j = 0; j < this.enemies[i].length; j++) {
+        this.enemies[i][j].teleportToInitialPosition();
+      }
+    }
+    this.bonus.cancelAnimation();
+    this.bonus.resetPosition();
+  }
+  /**
+   * An enemy collides with player. Kill both the enemy and the player, player lose a live, the game reset or is game over if the player have no more lives.
+   * @param {Enemy} enemy Enemy that collides with player
+   */
+  enemyCollidesWithPlayer(enemy) {
+    /*
+    if vidas > 1
+      Explosiones
+      desaparece enemigo
+      desaparece player
+      parar enemigos
+      parar nave bonus
+      Jugador pierde vida => player.lives
+      En el contador pierde una vida => classList.add(liveLost)
+      ¿mensaje?
+      TIMEOUT
+      Reset
+        jugador volver a position inicial
+        enemigos volver a position inicial
+          moverlos a su sitio
+          dejar de ser transparentes
+          vuelvan a ser colisionables
+    else
+      game over
+    */
+    if(player.lives > 1) {
+      this.createExplosion(player);
+      this.createExplosion(enemy);
+      this.removeEnemy(enemy);
+      this.removePlayer();
+      this.cancelAllEnemiesMovement();
+      this.bonus.cancelAnimation();
+      this.bonus.resetPosition();
+      player.loseLive();
+      setTimeout(() => { alert("¡¡¡Has perdido una vida!!!"); }, 1000); 
+      setTimeout(() => { this.reset(); }, 5000);
+    } else {
+      //TODO - game over
+    }
+  }
+  playerWins() {
+    /*
+    player.resetLives();
+    this.pointsCounter.reset(); 
+    */
   }
 }
