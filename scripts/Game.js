@@ -13,14 +13,14 @@ export class Game {
     this.bulletTimeout = 250;
 
     this.canvas = document.getElementById("game");
-    this.width = 1500;
+    this.width = 1900;
     this.height = 870;
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
 
     //this.padding = [20, 10];
-    this.canvasRows = 9;
-    this.canvasColumns = enemiesPerRow + 2;
+    this.canvasRows = 10;
+    this.canvasColumns = enemiesPerRow + 3;
     this.canvasRowHeight = this.height / this.canvasRows; //(this.height - (this.padding[1] * 2)) / this.canvasRows;
     this.canvasColumnWidth = this.width / this.canvasColumns; //(this.width - (this.padding[0] * 2)) / this.canvasColumns;
 
@@ -29,7 +29,7 @@ export class Game {
       [65, 65],
       [80, 80]
     ];
-    this.bonusSize = [100, 150];
+    this.bonusSize = [80, 100];
     /*
     new Array(5) === [null, null, null, null, null]
     for(i=0;i<length;i++)
@@ -70,7 +70,7 @@ export class Game {
     const enemyType = Math.ceil(row / 2);
     return [
       (this.canvasColumnWidth * (column + 0.5)) - (this.enemiesSize[enemyType][0] / 2),
-      (this.canvasRowHeight * (row + 0.5)) - (this.enemiesSize[enemyType][1] / 2)
+      (this.canvasRowHeight * (row + 1.5)) - (this.enemiesSize[enemyType][1] / 2)
       /*
       (this.canvasColumnWidth * column) + this.padding[0] * 3 - (this.enemiesSize[enemyType][0] / 2),
       (this.canvasRowHeight * row) + (this.canvasRowHeight * 0.5) + this.padding[1] - (this.enemiesSize[enemyType][1] / 2)
@@ -213,7 +213,7 @@ export class Game {
       this.bonus.reset();
       console.log(document.getElementById(`live${player.lives}`));
       let live = document.getElementById(`live${player.lives}`);
-      live.style.filter = "brightness(0.2)";
+      live.style.filter = "brightness(0.3)";
       live.style.transition = "filter 1s ease-out";
       player.lives--;
       setTimeout(() => {alert("¡¡¡Has perdido una vida!!!");}, 1000); 
@@ -227,8 +227,8 @@ export class Game {
   /********************************************* ENEMIES MOVEMENT *********************************************/
   /************************************************************************************************************/
 
-  getXOfCanvasColumn(column) { return this.canvasColumnWidth * column; }
-  getYOfCanvasRow(row) { return this.canvasRowHeight * row; }
+  getXOfCanvasColumn(column) { return this.canvasColumnWidth * (column + 0.5); }
+  getYOfCanvasRow(row) { return this.canvasRowHeight * (row + 0.5); }
   /**
    * Returns true if enemy from enemies column is on canvas column. Used by the enemies movement pattern to decide when to move down.
    * @param {number} enemyColumn Column in enemies array

@@ -9,17 +9,25 @@
 </head>
 
 <body>
-  <button id="enemiesMovB">¡Enemigos, muevanse!</button>
+  <button id="enemiesMovB">¡Start!</button>
   <section id="background">
     <header>
-      <div id="livesCounter" class="headerInfoBoxes">
-        <img id="live1" src="./assets/images/spaceships/player1.png">
-        <img id="live2" src="./assets/images/spaceships/player1.png">
-        <img id="live3" src="./assets/images/spaceships/player1.png">
+      <div id="headerTitles">
+        <h1>Lives</h1>
+        <h1>Points</h1>
       </div>
-      <label id="pointsCounter" class="headerInfoBoxes">
-        00000
-      </label>
+      <div id="headerCounters">
+        <label id="livesCounter" class="headerInfoBoxes">
+          <div id="livesContainer">
+            <img id="live1" src="./assets/images/spaceships/player1.png">
+            <img id="live2" src="./assets/images/spaceships/player1.png">
+            <img id="live3" src="./assets/images/spaceships/player1.png">
+          </div>
+        </label>
+        <label id="pointsCounter" class="headerInfoBoxes">
+          00000
+        </label>
+      </div>
     </header>
     <div id="game">
 

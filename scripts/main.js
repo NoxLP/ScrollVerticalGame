@@ -1,7 +1,7 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
-export const game = new Game(5);
+export const game = new Game(10);
 game.createEnemies();
 export const player = new Player();
 console.log(game);

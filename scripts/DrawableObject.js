@@ -24,6 +24,8 @@ export class DrawableObject {
     this._y = value;
     this.updateY();
   }
+  get centerX() { return this._x + (this.width / 2); }
+  get centerY() { return this._y + (this.height / 2); }
 
   updateX() { this.elem.style.left = `${this._x}px`; }
   updateY() { this.elem.style.top = `${this._y}px`; }
