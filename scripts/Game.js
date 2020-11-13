@@ -1,6 +1,7 @@
 import { Enemy } from "./Enemy.js";
 import { BonusEnemy } from "./BonusEnemy.js";
 import { player } from "./main.js";
+import { PointsCounter } from "./PointsCounter.js";
 
 /**
  * Class for control them all
@@ -52,11 +53,19 @@ export class Game {
     ];// - this.padding[1]];
     this.bulletSize = [60, 50];
 
+    this._points = 0;
+    this.pointsCounter = new PointsCounter(50);
+
     this.keysDown = {
       ArrowLeft: false,
       ArrowRight: false,
       Space: false
     }
+  }
+  get points() { return this._points; }
+  set points(total) {
+    this._points = total;
+    this.pointsCounter.showedPoints = total;
   }
   /**
    * Returns DOM coordinates for initial enemy position
@@ -124,8 +133,8 @@ export class Game {
     //this.enemies[enemy.row][enemy.column] = null;
     cancelAnimationFrame(enemy.animationFrameId);
     clearTimeout(enemy.animationFrameId);
-    //****** TODO **************/
-    //dar puntos al jugador que haya matado al enemigo
+    
+    this.points += (enemy.type + 1) * 100;
   }
   removePlayer() {
     player.elem.style.display = "none";

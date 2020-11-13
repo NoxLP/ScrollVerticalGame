@@ -1,4 +1,4 @@
-import { CollisionableObject } from "./CollisionableObject.js";
+import { CollisionableObject } from "./base/CollisionableObject.js";
 import { game } from "./main.js";
 
 export class BonusEnemy extends CollisionableObject {
