@@ -8,7 +8,7 @@ console.log(game);
 
 
 document.addEventListener("keydown", function (e) {
-  if(player.elem.style.display === "none")
+  if(!player.responsive)
     return;
 
   if (e.key === "ArrowLeft" && !game.keysDown.ArrowRight && !game.keysDown.ArrowLeft) {
@@ -27,7 +27,7 @@ document.addEventListener("keydown", function (e) {
 });
 
 document.addEventListener("keyup", e => {
-  if(player.elem.style.display === "none")
+  if(!player.responsive)
     return;
     
   if (e.key === "ArrowLeft") {
@@ -42,13 +42,10 @@ document.addEventListener("keyup", e => {
 });
 
 window.onload = () => {
-  document.getElementById("start").onclick = () => {
+  document.getElementById("startButton").onclick = () => {
     document.getElementById("menu").style.display = "none";
     document.getElementById("background").style.display = "block";
-    
-    setTimeout(() => {
-      game.moveEnemies();
-      game.createBonusEnemy();
-    }, 3000);
+    player.responsive = false;
+    setTimeout(() => { game.start(); }, 3000);
   };
 };

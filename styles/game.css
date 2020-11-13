@@ -9,7 +9,12 @@ body {
   background-color: black;
 }
 button {
-  margin: 10px;
+  position: absolute;
+  height: 100px;
+  width: 200px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 #background {
@@ -25,12 +30,12 @@ button {
   display: none;
 }
 #menu {
+  position: relative;
   top: 0;
   left: 0;
   width: 1900px;
   height: 970px;
   margin: 0 auto;
-  border: 3px solid green;
 }
 #game {
   position: relative;

@@ -64,6 +64,7 @@ export class Game {
       Space: false
     }
   }
+
   get points() { return this._points; }
   set points(total) {
     this._points = total;
@@ -89,7 +90,7 @@ export class Game {
     
     this.points += (enemy.type + 1) * 100;
 
-    if(this.enemies.every(x => x.every(e => e.elem.style.display !== "none"))) {
+    if(this.enemies.every(x => x.every(e => e.elem.style.display === "none"))) {
       this.playerWins();
     }
   }
@@ -98,6 +99,7 @@ export class Game {
    */
   removePlayer() {
     player.elem.style.display = "none";
+    player.responsive = false;
     player.collisionable = false;
     for(let key in this.keysDown) {
       this.keysDown[key] = false;
@@ -203,7 +205,7 @@ export class Game {
     
     */
     this.bonus = new BonusEnemy();
-    setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5))
+    setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5));
   }
 
   /************************************************************************************************************/
@@ -272,6 +274,10 @@ export class Game {
     }
   }
   /**
+   * Move bonus enemy
+   */
+  moveBonusEnemy() { setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5)); }
+  /**
    * Cancel movement of all enemies
    */
   cancelAllEnemiesMovement() {
@@ -325,25 +331,63 @@ export class Game {
     else
       game over
     */
-    if(player.lives > 1) {
-      this.createExplosion(player);
-      this.createExplosion(enemy);
-      this.removeEnemy(enemy);
-      this.removePlayer();
-      this.cancelAllEnemiesMovement();
-      this.bonus.cancelAnimation();
-      this.bonus.resetPosition();
-      player.loseLive();
-      setTimeout(() => { alert("¡¡¡Has perdido una vida!!!"); }, 1000); 
-      setTimeout(() => { this.reset(); }, 5000);
+    this.createExplosion(player);
+    this.createExplosion(enemy);
+    this.removeEnemy(enemy);
+    this.removePlayer();
+    this.cancelAllEnemiesMovement();
+    this.bonus.cancelAnimation();
+    this.bonus.resetPosition();
+    player.loseLive();
+
+    if(player.lives > 0) {
+      setTimeout(() => { alert("¡You lost a life!"); }, 1000); 
+      setTimeout(() => { 
+        this.reset();
+        this.moveEnemies();
+        this.moveBonusEnemy();
+        player.responsive = true;
+        player.collisionable = true;
+      }, 5000);
     } else {
-      //TODO - game over
+      setTimeout(() => { 
+        alert("¡¡¡Game Over!!!"); 
+        player.resetLives();
+        this.pointsCounter.reset(); 
+        document.getElementById("menu").style.display = "block";
+        document.getElementById("background").style.display = "none";
+        this.reset();
+      }, 1000); 
     }
   }
   playerWins() {
     /*
-    player.resetLives();
-    this.pointsCounter.reset(); 
+    Parar movimientos: enemigos, bonus, ¿player?
+    Mensaje "Has ganado! tu puntuación fue de :...." 
+    resetear vidas y puntos.
+    volver al menú.
     */
+    this.cancelAllEnemiesMovement();
+    this.bonus.cancelAnimation();
+    this.bonus.resetPosition();
+    for(let key in this.keysDown) {
+      this.keysDown[key] = false;
+    }
+    player.responsive = false;
+    
+    setTimeout(() => {
+      alert(`You Won Crack! Your points are: ${ this.pointsCounter.showedPoints}`);
+      player.resetLives();
+      this.pointsCounter.reset(); 
+      document.getElementById("menu").style.display = "block";
+      document.getElementById("background").style.display = "none";
+      this.reset();
+    }, 2000);
+  }
+  start() {
+    player.responsive = true;
+    player.collisionable = true;
+    game.moveEnemies();
+    game.createBonusEnemy();
   }
 }

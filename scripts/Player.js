@@ -15,6 +15,7 @@ export class Player extends CollisionableObject {
     this.lastBulletTime = null;
     this.shootTimer;
     this._lives = 3;
+    this.responsive = true;
   }
   get lives() { return this._lives; }
   loseLive() {
@@ -74,5 +75,7 @@ export class Player extends CollisionableObject {
     this.x = game.playerInitialCoords[0];
     this.y = game.playerInitialCoords[1];
     this.elem.style.display = "inline";
+    this.responsive = true;
   }
+
 }
