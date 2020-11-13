@@ -42,8 +42,13 @@ document.addEventListener("keyup", e => {
 });
 
 window.onload = () => {
-  document.getElementById("enemiesMovB").onclick = () => {
-    game.moveEnemies();
-    game.createBonusEnemy();
+  document.getElementById("start").onclick = () => {
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("background").style.display = "block";
+    
+    setTimeout(() => {
+      game.moveEnemies();
+      game.createBonusEnemy();
+    }, 3000);
   };
 };

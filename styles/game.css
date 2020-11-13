@@ -13,6 +13,7 @@ button {
 }
 
 #background {
+  position: relative;
   background: url("../assets/images/background/background0.jpg");
   background-size: 100% 108%;
   background-repeat: no-repeat;
@@ -20,7 +21,16 @@ button {
   left: 0;
   width: 1900px;
   height: 970px;
+  margin: auto;
+  display: none;
+}
+#menu {
+  top: 0;
+  left: 0;
+  width: 1900px;
+  height: 970px;
   margin: 0 auto;
+  border: 3px solid green;
 }
 #game {
   position: relative;
