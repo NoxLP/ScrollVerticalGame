@@ -19,6 +19,14 @@ document.addEventListener("keydown", function (e) {
     game.keysDown.ArrowRight = true;
     player.moveRight();
   }
+  if (e.key === "ArrowUp" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+    game.keysDown.ArrowUp = true;
+    player.moveUp();
+  }
+  if (e.key === "ArrowDown" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+    game.keysDown.ArrowDown = true;
+    player.moveDown();
+  }
   if (e.key === " " && !game.keysDown.Space) {
     console.log("SPACE")
     game.keysDown.Space = true;
@@ -35,6 +43,12 @@ document.addEventListener("keyup", e => {
   }
   if (e.key === "ArrowRight") {
     game.keysDown.ArrowRight = false;
+  }
+  if (e.key === "ArrowUp") {
+    game.keysDown.ArrowUp = false;
+  }
+  if (e.key === "ArrowDown") {
+    game.keysDown.ArrowDown = false;
   }
   if (e.key === " ") {
     game.keysDown.Space = false;

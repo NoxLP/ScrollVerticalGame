@@ -49,6 +49,22 @@ export class Player extends CollisionableObject {
       window.requestAnimationFrame(() => { this.moveRight(); });
     }
   }
+  moveUp = function () {
+    console.log("UP", this.y, game.keysDown.ArrowUp)
+    if (this.y > game.step && game.keysDown.ArrowUp) {
+      console.log("INSIDE up")
+      this.y -= game.step;
+      window.requestAnimationFrame(() => { this.moveUp(); });
+    }
+  }
+  moveDown = function () {
+    console.log("DOWN")
+    if (this.y + this.height < game.height - game.step && game.keysDown.ArrowDown) {
+      console.log("INSIDE down")
+      this.y += game.step;
+      window.requestAnimationFrame(() => { this.moveDown(); });
+    }
+  }
   /**
    * Create bullets while the spacebar is pressed
    */

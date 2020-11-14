@@ -19,15 +19,22 @@ button {
 
 #background {
   position: relative;
-  background: url("../assets/images/background/background0.jpg");
+  /*background: url("../assets/images/background/background0.jpg");
   background-size: 100% 108%;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat;*/
   top: 0;
   left: 0;
   width: 1900px;
   height: 970px;
   margin: auto;
   display: none;
+}
+#movingBackg {
+  position: absolute;
+  width: 100%;
+  display: inline;
+  bottom: 0;
+  z-index: 0;
 }
 #menu {
   position: relative;

@@ -13,6 +13,9 @@ export class Game {
     this.bulletStep = 15;
     this.bulletTimeout = 250;
 
+    this.background = document.getElementById("movingBackg");
+    this.backgroundBottom = 0;
+
     this.canvas = document.getElementById("game");
     this.width = 1900;
     this.height = 870;
@@ -61,6 +64,8 @@ export class Game {
     this.keysDown = {
       ArrowLeft: false,
       ArrowRight: false,
+      ArrowUp: false,
+      ArrowDown: false,
       Space: false
     }
   }
@@ -180,7 +185,7 @@ export class Game {
    */
   createExplosion(collidingObject) {
     let explosion = new Image();
-    explosion.src = "../assets/images/spaceships/playerExplosion.gif";
+    explosion.src = "assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
     explosion.style.width = `${collidingObject.width + 25}px`;
     explosion.style.height = `${collidingObject.height + 25}px`;
@@ -384,10 +389,16 @@ export class Game {
       this.reset();
     }, 2000);
   }
+  moveBackgroundDown() {
+    this.backgroundBottom -= 0.9;
+    this.background.style.bottom = `${this.backgroundBottom}px`
+    window.requestAnimationFrame(() => { this.moveBackgroundDown();});
+  }
   start() {
     player.responsive = true;
     player.collisionable = true;
     game.moveEnemies();
     game.createBonusEnemy();
+    this.moveBackgroundDown();
   }
 }
