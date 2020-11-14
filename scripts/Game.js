@@ -17,7 +17,7 @@ export class Game {
     this.backgroundBottom = 0;
 
     this.canvas = document.getElementById("game");
-    this.width = 1900;
+    this.width = 1500;
     this.height = 870;
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
