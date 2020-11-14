@@ -77,5 +77,4 @@ export class Player extends CollisionableObject {
     this.elem.style.display = "inline";
     this.responsive = true;
   }
-
 }

@@ -87,10 +87,10 @@ export class Game {
     //this.enemies[enemy.row][enemy.column] = null;
     cancelAnimationFrame(enemy.animationFrameId);
     clearTimeout(enemy.animationFrameId);
-    
+
     this.points += (enemy.type + 1) * 100;
 
-    if(this.enemies.every(x => x.every(e => e.elem.style.display === "none"))) {
+    if (this.enemies.every(x => x.every(e => e.elem.style.display === "none"))) {
       this.playerWins();
     }
   }
@@ -101,7 +101,7 @@ export class Game {
     player.elem.style.display = "none";
     player.responsive = false;
     player.collisionable = false;
-    for(let key in this.keysDown) {
+    for (let key in this.keysDown) {
       this.keysDown[key] = false;
     }
   }
@@ -116,7 +116,7 @@ export class Game {
     pointsPopup.style.top = `${this.bonus.y}px`;
     pointsPopup.classList.add("pointsPopup");
     this.canvas.appendChild(pointsPopup);
-    
+
     setTimeout(() => { pointsPopup.classList.add("pointsPopupAnimation"); }, 50);
     setTimeout(() => { this.canvas.removeChild(pointsPopup); }, 2000);
 
@@ -180,7 +180,7 @@ export class Game {
    */
   createExplosion(collidingObject) {
     let explosion = new Image();
-    explosion.src = "../assets/images/spaceships/playerExplosion.gif";
+    explosion.src = "assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
     explosion.style.width = `${collidingObject.width + 25}px`;
     explosion.style.height = `${collidingObject.height + 25}px`;
@@ -191,7 +191,7 @@ export class Game {
     setTimeout(() => {
       this.canvas.removeChild(explosion);
     },
-    400);
+      400);
   }
   /**
    * Create bonus ship and starts movement
@@ -228,8 +228,8 @@ export class Game {
    */
   enemyIsInCanvasColumn(enemyColumn, canvasColumn) {
     const enemy = this.enemies[0][enemyColumn];
-    return enemy && 
-      enemy.x > this.canvasColumnWidth * canvasColumn && 
+    return enemy &&
+      enemy.x > this.canvasColumnWidth * canvasColumn &&
       enemy.x < this.canvasColumnWidth * (canvasColumn + 1);
   }
   /**
@@ -239,8 +239,8 @@ export class Game {
    */
   enemyIsInCanvasRow(enemyRow, canvasRow) {
     const enemy = this.enemies[enemyRow][0];
-    return enemy && 
-      enemy.y >= canvasRow * this.canvasRowHeight + this.padding[0] && 
+    return enemy &&
+      enemy.y >= canvasRow * this.canvasRowHeight + this.padding[0] &&
       enemy.x < ((canvasColumn + 1) * this.canvasColumnWidth) + this.padding[1];
   }
   /**
@@ -311,10 +311,16 @@ export class Game {
    * @param {Enemy} enemy Enemy that collides with player
    */
   enemyCollidesWithPlayer(enemy) {
+    this.removeEnemy(enemy);
+    this.playerHitted();
+  }
+  /**
+   * The player gets hitted by an object
+   */
+  playerHitted() {
     /*
     if vidas > 1
       Explosiones
-      desaparece enemigo
       desaparece player
       parar enemigos
       parar nave bonus
@@ -332,17 +338,15 @@ export class Game {
       game over
     */
     this.createExplosion(player);
-    this.createExplosion(enemy);
-    this.removeEnemy(enemy);
     this.removePlayer();
     this.cancelAllEnemiesMovement();
     this.bonus.cancelAnimation();
     this.bonus.resetPosition();
     player.loseLive();
 
-    if(player.lives > 0) {
-      setTimeout(() => { alert("¡You lost a life!"); }, 1000); 
-      setTimeout(() => { 
+    if (player.lives > 0) {
+      setTimeout(() => { alert("¡You lost a life!"); }, 1000);
+      setTimeout(() => {
         this.reset();
         this.moveEnemies();
         this.moveBonusEnemy();
@@ -350,14 +354,14 @@ export class Game {
         player.collisionable = true;
       }, 5000);
     } else {
-      setTimeout(() => { 
-        alert("¡¡¡Game Over!!!"); 
+      setTimeout(() => {
+        alert("¡¡¡Game Over!!!");
         player.resetLives();
-        this.pointsCounter.reset(); 
+        this.pointsCounter.reset();
         document.getElementById("menu").style.display = "block";
         document.getElementById("background").style.display = "none";
         this.reset();
-      }, 1000); 
+      }, 1000);
     }
   }
   playerWins() {
@@ -370,15 +374,15 @@ export class Game {
     this.cancelAllEnemiesMovement();
     this.bonus.cancelAnimation();
     this.bonus.resetPosition();
-    for(let key in this.keysDown) {
+    for (let key in this.keysDown) {
       this.keysDown[key] = false;
     }
     player.responsive = false;
-    
+
     setTimeout(() => {
-      alert(`You Won Crack! Your points are: ${ this.pointsCounter.showedPoints}`);
+      alert(`You Won Crack! Your points are: ${this.pointsCounter.showedPoints}`);
       player.resetLives();
-      this.pointsCounter.reset(); 
+      this.pointsCounter.reset();
       document.getElementById("menu").style.display = "block";
       document.getElementById("background").style.display = "none";
       this.reset();

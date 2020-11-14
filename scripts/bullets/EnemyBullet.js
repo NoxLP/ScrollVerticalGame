@@ -11,37 +11,36 @@ export class EnemyBullet extends CollisionableObject {
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1]);
   }
-  collidesWithPlayer() {
-    return this.collideWith(player);
-  }
   /**
-   * 
+   * Move enemy bullet in established direction
    * @param {array} direction Direction of movement in an (x, y) array
    */
   move(direction) {
     /*
-    Aumentas y en x pixeles (game.bulletStep)
-    
-    Si la bala llega a arriba (game.height)
-      para y destruye la bala
-    else Si colisiona con enemigo
-      para, destruyela bala, destruye enemigo
-    de otra forma
-      window.requestAnimationFrame(this.move)
+     x  y
+    [0, 1] => abajo
+    1, 0 => derecha
+    1, 1 => abajo y derecha
+    0, -1 => arriba
+    ...
+
+    x += direction[0]
+    y += direction[1]
     */
-    if(this.y + this.height > 0) {
+    if (this.y > 0 && //limite superior
+      this.y + this.height < game.height && //limite inferior
+      this.x > 0 && //limite izq
+      this.x + this.width) //limite der
+    {
       //console.log("Bala subiendo");
-      this.y -= game.bulletStep;
-      var collidingEnemy = this.isCollidingWithAnEnemy();
-      
-      if(collidingEnemy) {
-        console.log("COLLIDES WITH", collidingEnemy.row, collidingEnemy.column)
-        //console.log("collidingEnemy")
-        game.createExplosion(collidingEnemy);
-        game.canvas.removeChild(this.elem);
-        game.removeEnemy(collidingEnemy);
-      } else if(this.collideWith(game.bonus)) {
-        game.removeBonusEnemy();
+      this.y += (direction[1] * game.bulletStep);
+      this.x += (direction[0] * game.bulletStep);
+
+      var collidingPlayer = this.collideWith(player);
+
+      if (collidingPlayer) {
+        console.log("collidingPlayer")
+        game.playerHitted();
         game.canvas.removeChild(this.elem);
       } else {
         window.requestAnimationFrame(() => { this.move(); });
