@@ -7,7 +7,7 @@ import { game } from "../main.js";
 export class PlayerBullet extends CollisionableObject {
   constructor(x, y) {
     let elem = new Image(); //document.getElementById('player');
-    elem.src = "../assets/images/spaceships/playerBullet.png";
+    elem.src = "assets/images/spaceships/playerBullet.png";
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1]);
   }

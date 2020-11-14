@@ -7,7 +7,7 @@ import { game, player } from "./main.js";
 export class Enemy extends CollisionableObject {
   constructor(type, x, y, row, column) {
     let elem = new Image();
-    elem.src = `../assets/images/spaceships/enemy${type}.png`;// "../assets/images/spaceships/enemy" + type + ".png"
+    elem.src = `assets/images/spaceships/enemy${type}.png`;// "../assets/images/spaceships/enemy" + type + ".png"
     elem.classList.add("enemy");
     //constructor(domElement, x, y, width, height, topBottom = "top", leftRight = "left")
     super(elem, x, y, game.enemiesSize[type][0], game.enemiesSize[type][1]);
