@@ -4,7 +4,7 @@ import { game } from "./main.js";
 export class BonusEnemy extends CollisionableObject {
   constructor() {
     let elem = new Image();
-    elem.src = `../assets/images/spaceships/bonus.png`;// "../assets/images/spaceships/enemy" + type + ".png"
+    elem.src = `assets/images/spaceships/bonus.png`;// "../assets/images/spaceships/enemy" + type + ".png"
     elem.classList.add("bonusEnemy");
     super(elem, -game.bonusSize[0] - 15, 0, game.bonusSize[0], game.bonusSize[1]);
 
