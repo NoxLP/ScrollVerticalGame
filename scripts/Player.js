@@ -8,7 +8,7 @@ import { PlayerBullet } from "./bullets/PlayerBullet.js";
 export class Player extends CollisionableObject {
   constructor() {
     let elem = new Image(); //document.getElementById('player');
-    elem.src = "../../ScrollVerticalGame/assets/images/spaceships/player1.png";
+    elem.src = "assets/images/spaceships/player1.png";
     elem.id = "player";
     super(elem, game.playerInitialCoords[0], game.playerInitialCoords[1], game.playerSize[0], game.playerSize[1]);
 
