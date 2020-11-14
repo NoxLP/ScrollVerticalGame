@@ -1,37 +1,24 @@
 import { CollisionableObject } from "../base/CollisionableObject.js";
-import { game } from "../main.js";
+import { game, player } from "../main.js";
 
 /**
- * Class for player bullets
+ * Class for enemy bullets
  */
-export class PlayerBullet extends CollisionableObject {
+export class EnemyBullet extends CollisionableObject {
   constructor(x, y) {
-    let elem = new Image(); //document.getElementById('player');
-    elem.src = "assets/images/bullets/playerBullet.png";
+    let elem = new Image();
+    elem.src = "assets/images/bullets/enemyBullet.png"
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1]);
   }
-  /**
-   * Iterates all enemies to see if collides with one of them
-   */
-  isCollidingWithAnEnemy() {
-    //console.log("isCollidingWithAnEnemy", game.enemies)
-    //This could be more efficiente storing enemies by their coords in some sort of grid, so one should only check for collisions in the same column of the bullet
-    for(let i = 0; i < game.enemies.length; i++) {
-      for(let j = 0; j < game.enemies[i].length; j++) {
-        //console.log("ENEMY", game.enemies[i])
-        if(this.collideWith(game.enemies[i][j])) {
-          //console.log(game.enemies[i][j])
-          return game.enemies[i][j];
-        }
-      }
-    }
-    return null;
+  collidesWithPlayer() {
+    return this.collideWith(player);
   }
   /**
-   * move the bullet always up
+   * 
+   * @param {array} direction Direction of movement in an (x, y) array
    */
-  move() {
+  move(direction) {
     /*
     Aumentas y en x pixeles (game.bulletStep)
     
