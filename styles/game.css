@@ -87,3 +87,11 @@ button {
   transition: all 1.5s ease-out;
   transition-property: opacity, font-size;
 }
+.levelClearedPopup {
+  position: absolute;
+  font-size: 70px;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-100%, -50%);
+}
