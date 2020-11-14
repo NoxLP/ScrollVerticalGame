@@ -113,23 +113,12 @@ export class Enemy extends CollisionableObject {
     if(!this.collisionable)
       this.collisionable = true;
   }
-  moveToPoints(points, segs) {
+  moveToPoint(point, segs) {
     console.log("******* moveToPoint")
     //this.elem.style.transitionProperty = "top, left";
-    //x linear, y cubic-bezier(0.36, 0.5, 0.66, -0.56) => forma S horizontal
-    this.elem.style.transition = `left ${segs}s linear, top ${segs}s cubic-bezier(0.36, 0.5, 0.66, -0.56)`;
-    const moveToPoint = (point, i) => {
-      console.log("MEDIO ", i, point[i])
-      this.elem.style.top = `${point[1]}px`;
-      this.elem.style.left = `${point[0]}px`;
-
-      i++;
-      if(points.length < i) {
-        setTimeout(() => { moveToPoint(point[i], i); }, segs * 1000);
-      }
-    };
-    moveToPoint(points[0], 0);
-
+    this.elem.style.transition = `left ${segs}s cubic-bezier(0.55, 0, 1, 0.45), top ${segs}s linear`;
+    this.elem.style.left = `${point[0]}px`;
+    this.elem.style.top = `${point[1]}px`;
     console.log("****** enemy moved to ", this.elem.style.left, this.elem.style.top);
   }
 }

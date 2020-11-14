@@ -52,6 +52,33 @@ export class Game {
     this.enemies = [];
     this.enemiesPerRow = enemiesPerRow;
     this.svEnemiesMoveTimerId = null;
+    this.svEnemiesPaths = [
+      /*[[-400, this.height * 0.75], [this.width * 0.8, -400]], //abajo izq3/4 => arriba der3/4
+      [[this.width * 0.8, this.height + 400], [-400, -400]], //abajo der3/4 => arriba izq
+      [[-400, this.height * 0.25], [this.width * 0.2, -400]], //abajo izq1/4 => arriba der1/4
+      [[this.width * 0.2, this.height + 400], [this.width * 0.8, -400]], //abajo izq 1/4 => arriba der 3/4
+      [[-400, this.height * 0.5], [this.width, this.height + 400]], //mitad izq => abajo der
+      [[this.width + 400, this.height * 0.5], [0, this.height + 400]], //mitad der => abajo mitad*/
+      [[this.width, -400], [-400, this.height + 400]], //arriba der => abajo izq
+      [[-400, -400], [this.width, this.height + 400]], //arriba izq => abajo der
+      [[-400, this.height * 0.5], [this.width + 400, this.height * 0.5]],
+      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.5]],
+      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.5]],
+      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.7]],
+      /*[[this.width + 400, this.height + 400], [-400, -400]], //abajo der => arriba izq
+      [[this.width * 0.5, this.height + 400], [this.width + 400, -400]], //abajo mitad => arriba derecha
+      [[this.width * 0.5, this.height + 400], [-400, -400]], //abajo mitad => arriba izquierda
+      [[-400, this.height * 0.5], [this.width + 400, this.height * 0.75]],
+      [[-400, this.height * 0.5], [this.width + 400, this.height * 0.2]],
+      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.75]],
+      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.2]]*/
+    ];
+    this.svEasings = [
+      ["linear", "linear"],
+      ["linear", "cubic-bezier(0.36, 0.5, 0.66, -0.56)"], //S
+      ["cubic-bezier(0.36, 0.5, 0.66, -0.56)", "linear"], //S
+
+    ];
 
     this.playerSize = [80, 80];
     this.playerInitialCoords = [
@@ -401,7 +428,7 @@ export class Game {
     Y === -enemy.height || Y === canvas heigth
      */
     console.log("----------------- Nuevo enemigo scroll");
-    let x, y, finalX, finalY;
+    //let x, y, finalX, finalY;
     /*if(Math.random() > 0.5){
       x = -400;
       y = Math.random() * this.height;
@@ -416,28 +443,42 @@ export class Game {
       finalY = -400;
       finalX = Math.random() * this.width;
     }*/
-    x = -400;
-    y = 500;
-    let medX = 1200;
-    let medY = 300;
-    finalX = -400;
-    finalY = -1000;
-    console.log("------ coords ", x, y, finalX, finalY);
+    /*
+    this.svEnemiesPaths = [
+      [
+        [-400, this.height * 0.75], 
+        [this.width * 0.8, -400]
+      ], //abajo izq3/4 => arriba der3/4
+      [
+        [this.width * 0.8, this.height * 0.75], 
+        [-400, -400]
+      ], //abajo der3/4 => arriba izq3/4
+      [[-400, this.height * 0.25], [this.width * 0.2, -400]], //abajo izq1/4 => arriba der1/4
+      [[this.width * 0.2, this.height * 0.25], [-400, -400]], //abajo der1/4 => arriba izq1/4
+      [[-400, this.height * 0.5], [this.width * 0.5, this.height + 400]], //mitad izq => abajo mitad
+      [[this.width + 400, this.height * 0.5], [this.width * 0.5, this.height + 400]], //mitad der => abajo mitad
+      [[this.width + 400, -400], [-400, this.height + 400]], //arriba der => abajo izq
+      [[-400, -400], [this.width + 400, this.height + 400]], //arriba izq => abajo der
+      [[this.width + 400, this.height + 400], [-400, -400]], //abajo der => arriba izq
+      [[this.width * 0.5, this.height + 400], [this.width + 400, -400]], //abajo mitad => arriba derecha
+      [[this.width * 0.5, this.height + 400], [-400, -400]] //abajo mitad => arriba izquierda
+    ];
+    */
+    let index = Math.round(Math.random() * (this.svEnemiesPaths.length - 1));
+    console.log("------- PATRON ", index)
+    let initial = this.svEnemiesPaths[index][0];
+    let final = this.svEnemiesPaths[index][1];
+    let shiptype = Math.round(Math.random() * 2);
+    //console.log("------ coords ", x, y, finalX, finalY);
 
     for(let i = 0; i < 3; i++) {
-      let enemy = new Enemy(Math.round(Math.random() * 2), x, y);
+      let enemy = new Enemy(shiptype, initial[0],initial[1]);
       enemy.elem.classList.add("enemy");
-      console.log(`------ enemy of type ${enemy.type} is in `, enemy.x, enemy.y);
-      setTimeout(() => {enemy.moveToPoints(
-        [
-          [medX, medY],
-          [finalX, finalY]
-        ], 
-        4)}, 
-        1000 + (300 * i));
+      //console.log(`------ enemy of type ${enemy.type} is in `, enemy.x, enemy.y);
+      setTimeout(() => {enemy.moveToPoint([final[0], final[1]], 4)}, 1000 + (300 * i));
     }
     //enemy.elem.classList.add("enemiesFinal");
-    this.svEnemiesMoveTimerId = setTimeout(() => {this.startScrollVerticalEnemiesMovements();}, (Math.random() * 8000) + 2000);
+    this.svEnemiesMoveTimerId = setTimeout(() => {this.startScrollVerticalEnemiesMovements();}, (Math.random() * 6000) + 2000);
   }
   startScrollVertical() {
     /*
