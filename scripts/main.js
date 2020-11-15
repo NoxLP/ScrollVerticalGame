@@ -1,8 +1,7 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
-export const game = new Game(10);
-game.createEnemies();
+export const game = new Game(1);
 export const player = new Player();
 console.log(game);
 
@@ -18,6 +17,14 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "ArrowRight" && !game.keysDown.ArrowLeft && !game.keysDown.ArrowRight) {
     game.keysDown.ArrowRight = true;
     player.moveRight();
+  }
+  if (e.key === "ArrowUp" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+    game.keysDown.ArrowUp = true;
+    player.moveUp();
+  }
+  if (e.key === "ArrowDown" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+    game.keysDown.ArrowDown = true;
+    player.moveDown();
   }
   if (e.key === " " && !game.keysDown.Space) {
     console.log("SPACE")
@@ -36,6 +43,12 @@ document.addEventListener("keyup", e => {
   if (e.key === "ArrowRight") {
     game.keysDown.ArrowRight = false;
   }
+  if (e.key === "ArrowUp") {
+    game.keysDown.ArrowUp = false;
+  }
+  if (e.key === "ArrowDown") {
+    game.keysDown.ArrowDown = false;
+  }
   if (e.key === " ") {
     game.keysDown.Space = false;
   }
@@ -46,6 +59,6 @@ window.onload = () => {
     document.getElementById("menu").style.display = "none";
     document.getElementById("background").style.display = "block";
     player.responsive = false;
-    setTimeout(() => { game.start(); }, 3000);
+    setTimeout(() => { game.start(); }, 300);
   };
 };

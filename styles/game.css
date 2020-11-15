@@ -19,15 +19,22 @@ button {
 
 #background {
   position: relative;
-  background: url("../assets/images/background/background0.jpg");
+  /*background: url("../assets/images/background/background0.jpg");
   background-size: 100% 108%;
-  background-repeat: no-repeat;
+  background-repeat: no-repeat;*/
   top: 0;
   left: 0;
   width: 1900px;
   height: 970px;
   margin: auto;
   display: none;
+}
+#movingBackg {
+  position: absolute;
+  width: 100%;
+  display: inline;
+  bottom: 5200px;
+  z-index: 0;
 }
 #menu {
   position: relative;
@@ -79,4 +86,12 @@ button {
   font-size: 0;
   transition: all 1.5s ease-out;
   transition-property: opacity, font-size;
+}
+.levelClearedPopup {
+  position: absolute;
+  font-size: 70px;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-100%, -50%);
 }

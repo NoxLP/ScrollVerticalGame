@@ -1,6 +1,8 @@
 import { CollisionableObject } from "./base/CollisionableObject.js";
 import { game, player } from "./main.js";
 
+var lastId = -1;
+
 /**
  * Class for enemies
  */
@@ -11,14 +13,19 @@ export class Enemy extends CollisionableObject {
     elem.classList.add("enemy");
     //constructor(domElement, x, y, width, height, topBottom = "top", leftRight = "left")
     super(elem, x, y, game.enemiesSize[type][0], game.enemiesSize[type][1]);
-
-    this.type = type;
+    this.id = lastId++;
+    this._type = type;
 
     this.row = row;
     this.column = column;
 
     this.lastMove = null;
     this.animationFrameId = null;
+  }
+  get type() { return this._type; }
+  set type(value) {
+    this._type = value;
+    this.elem.src = `assets/images/spaceships/enemy${this._type}.png`;
   }
   get canvasColumn() { return Math.round(this.x / game.canvasColumnWidth); }
   get canvasRow() { return Math.round(this.y / game.canvasRowHeight); }
@@ -112,5 +119,28 @@ export class Enemy extends CollisionableObject {
     }
     if (!this.collisionable)
       this.collisionable = true;
+  }
+  moveToPoint(point, segs, leftEasing, topEasing) {
+    console.log("******* moveToPoint", `left ${segs}s ${leftEasing}, top ${segs}s ${topEasing}`)
+    //this.elem.style.transitionProperty = "top, left";
+    this.elem.style.transition = `left ${segs}s ${leftEasing}, top ${segs}s ${topEasing}`;
+    this.x = point[0];
+    this.y = point[1];
+    console.log("****** enemy moved to ", this.elem.style.left, this.elem.style.top);
+
+    const checkIfCollideWithPlayerEachFrame = () => {
+      let rect = this.elem.getBoundingClientRect();
+      let collides = this.collideWithByBoundingRect(player);
+      //console.log("**** check enmy collides ", rect.left, rect.top);
+      if(!collides && rect.left !== point[0] && rect.top !== point[1]) {
+        this.animationFrameId = window.requestAnimationFrame(checkIfCollideWithPlayerEachFrame);
+      }
+      else if (collides)
+        game.enemyCollidesWithPlayer(this);
+      else {
+        game.svEnemiesPool.storeObject(this);
+      }
+    }
+    checkIfCollideWithPlayerEachFrame();
   }
 }
