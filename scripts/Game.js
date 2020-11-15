@@ -524,6 +524,18 @@ export class Game {
     pointsPopup.innerText = "Level 1 cleared";
     pointsPopup.classList.add("levelClearedPopup");
     this.canvas.appendChild(pointsPopup);
+    for(let i = 0; i < this.enemies.length; i++) {
+      for(let j = 0; j < this.enemies[i].length; j++) {
+        let enemy = this.enemies[i][j];
+        if(enemy.animationFrameId) {
+          cancelAnimationFrame(enemy.animationFrameId);
+          clearTimeout(enemy.animationFrameId);
+        }
+        enemy.elem.style.display = "none";
+        this.canvas.removeChild(enemy.elem);
+      }
+    }
+    this.enemies = [];
     setTimeout(() => {
       this.canvas.removeChild(pointsPopup);
       player.responsive = true;
