@@ -28,6 +28,12 @@ export class PlayerBullet extends CollisionableObject {
     }
     return null;
   }
+  isCollidingWithASVEnemy() {
+    for(let i = 0; i < game.svEnemiesPool.showingObjects.length; i++) {
+      if(this.collideWithByBoundingRect(game.svEnemiesPool.showingObjects[i]))
+        return game.svEnemiesPool.showingObjects[i];
+    }
+  }
   /**
    * move the bullet always up
    */
@@ -45,12 +51,11 @@ export class PlayerBullet extends CollisionableObject {
     if(this.y + this.height > 0) {
       //console.log("Bala subiendo");
       this.y -= game.bulletStep;
-      var collidingEnemy = this.isCollidingWithAnEnemy();
+      var collidingEnemy = game.gameState === "spaceInvaders" ? this.isCollidingWithAnEnemy() : this.isCollidingWithASVEnemy();
       
       if(collidingEnemy) {
         console.log("COLLIDES WITH", collidingEnemy.row, collidingEnemy.column)
         //console.log("collidingEnemy")
-        game.createExplosion(collidingEnemy);
         game.canvas.removeChild(this.elem);
         game.removeEnemy(collidingEnemy);
       } else if(this.collideWith(game.bonus)) {

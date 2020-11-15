@@ -2,12 +2,14 @@ import { Enemy } from "./Enemy.js";
 import { BonusEnemy } from "./BonusEnemy.js";
 import { game, player } from "./main.js";
 import { PointsCounter } from "./PointsCounter.js";
+import { ObjectPool } from "./ObjectPool.js";
 
 /**
  * Class for control them all
  */
 export class Game {
   constructor(enemiesPerRow) {
+    this.gameState = "spaceInvaders";
     this.step = 9;
     this.enemyFrameStep = 4;
     this.bulletStep = 15;
@@ -50,34 +52,56 @@ export class Game {
     this.bonusTimeout = 10000;
     this.bonusPointsRange = [50, 450];
     this.enemies = [];
+    this.svEnemiesPool = new ObjectPool();
     this.enemiesPerRow = enemiesPerRow;
     this.svEnemiesMoveTimerId = null;
+    this.svEasings = {
+      linear: "linear",
+      easeInSine: "cubic-bezier(0.12, 0, 0.39, 0)",
+      easeOutSine: "cubic-bezier(0.61, 1, 0.88, 1)",
+      easeInOutSine: "cubic-bezier(0.37, 0, 0.63, 1)",
+      easeInBack: "cubic-bezier(0.36, 0.5, 0.66, -0.56)",
+      easeOutBack: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      easeInOutBack: "cubic-bezier(0.68, -0.6, 0.32, 1.6)",
+      easeInCirc: "cubic-bezier(0.55, 0, 1, 0.45)",
+      easeOutCirc: "cubic-bezier(0, 0.55, 0.45, 1)",
+      easeInOutCirc: "cubic-bezier(0.85, 0, 0.15, 1)"
+    };
     this.svEnemiesPaths = [
-      /*[[-400, this.height * 0.75], [this.width * 0.8, -400]], //abajo izq3/4 => arriba der3/4
-      [[this.width * 0.8, this.height + 400], [-400, -400]], //abajo der3/4 => arriba izq
-      [[-400, this.height * 0.25], [this.width * 0.2, -400]], //abajo izq1/4 => arriba der1/4
-      [[this.width * 0.2, this.height + 400], [this.width * 0.8, -400]], //abajo izq 1/4 => arriba der 3/4
-      [[-400, this.height * 0.5], [this.width, this.height + 400]], //mitad izq => abajo der
-      [[this.width + 400, this.height * 0.5], [0, this.height + 400]], //mitad der => abajo mitad*/
-      [[this.width, -400], [-400, this.height + 400]], //arriba der => abajo izq
-      [[-400, -400], [this.width, this.height + 400]], //arriba izq => abajo der
-      [[-400, this.height * 0.5], [this.width + 400, this.height * 0.5]],
-      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.5]],
-      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.5]],
-      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.7]],
-      /*[[this.width + 400, this.height + 400], [-400, -400]], //abajo der => arriba izq
-      [[this.width * 0.5, this.height + 400], [this.width + 400, -400]], //abajo mitad => arriba derecha
-      [[this.width * 0.5, this.height + 400], [-400, -400]], //abajo mitad => arriba izquierda
-      [[-400, this.height * 0.5], [this.width + 400, this.height * 0.75]],
-      [[-400, this.height * 0.5], [this.width + 400, this.height * 0.2]],
-      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.75]],
-      [[this.width + 400, this.height * 0.5], [-400, this.height * 0.2]]*/
-    ];
-    this.svEasings = [
-      ["linear", "linear"],
-      ["linear", "cubic-bezier(0.36, 0.5, 0.66, -0.56)"], //S
-      ["cubic-bezier(0.36, 0.5, 0.66, -0.56)", "linear"], //S
+      [[this.width + 400, 0], [-400, this.height * 0.9], [this.svEasings.easeInOutSine, this.svEasings.easeInOutBack]],
+      [[-400, this.height * 0.2], [this.width + 400, this.height * 0.85], [this.svEasings.linear, this.svEasings.easeInOutBack]],
+      [[this.width + 400, this.height * 0.2], [-400, this.height * 0.7], [this.svEasings.linear, this.svEasings.easeInOutBack]],
+      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.2], [this.svEasings.linear, this.svEasings.easeInOutBack]],
 
+      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.5], [this.svEasings.easeInOutSine, this.svEasings.easeInOutBack]],
+      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.5], [this.svEasings.easeInCirc, this.svEasings.easeInOutBack]],
+
+      [[-400, -400], [this.width, this.height + 400], [this.svEasings.easeOutCirc, this.svEasings.linear]], //arriba izq => abajo der
+      [[-400, -400], [this.width, this.height + 400], [this.svEasings.easeOutCirc, this.svEasings.easeOutCirc]], //arriba izq => abajo der
+      [[-400, -400], [this.width, this.height + 400], [this.svEasings.linear, this.svEasings.easeInCirc]], //arriba izq => abajo der
+
+      [[this.width, -400], [-400, this.height + 400], [this.svEasings.linear, this.svEasings.easeOutCirc]], //arriba der => abajo izq
+      [[this.width, -400], [-400, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.easeOutCirc]], //arriba der => abajo izq
+      [[this.width, -400], [-400, this.height + 400], [this.svEasings.easeOutCirc, this.svEasings.easeOutCirc]], //arriba der => abajo izq
+      [[this.width, -400], [-400, this.height + 400], [this.svEasings.easeInCirc, this.svEasings.linear]], //arriba der => abajo izq
+
+      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
+      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.easeInCirc]], //abajo izq1/4 => arriba der1/4
+      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInCirc]], //abajo izq1/4 => arriba der1/4
+      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.linear]], //abajo izq1/4 => arriba der1/4
+      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
+      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInBack]], //abajo izq1/4 => arriba der1/4
+      
+      [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.easeInBack, this.svEasings.linear]], //abajo der3/4 => arriba izq
+      [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.easeInCirc, this.svEasings.linear]], //abajo der3/4 => arriba izq
+      [[this.width * 0.8, this.height], [-400, -400], [this.svEasings.linear, this.svEasings.easeInBack]], //abajo der3/4 => arriba izq      
+      [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.linear, this.svEasings.easeOutCirc]], //abajo der3/4 => arriba izq      
+      
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutCirc]],//abajo izq3/4 => arriba der3/4
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.easeInCirc, this.svEasings.easeInCirc]], 
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutBack]], 
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInBack]], 
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInCirc]]
     ];
 
     this.playerSize = [80, 80];
@@ -107,26 +131,33 @@ export class Game {
 
   /************************************************************************************************************/
   /****************************************** MODEL - CREATE/REMOVE *******************************************/
-
+  //#region
   /**
    * Remove enemy
    * @param {Enemy} enemy Enemy to remove
    */
   removeEnemy(enemy) {
-    //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
-    console.log(enemy)
-    enemy.elem.style.display = "none";
-    enemy.collisionable = false;
-    //this.canvas.removeChild(enemy.elem);
-    //this.enemies[enemy.row][enemy.column] = null;
-    cancelAnimationFrame(enemy.animationFrameId);
-    clearTimeout(enemy.animationFrameId);
-    
-    this.points += (enemy.type + 1) * 100;
+    if(this.gameState === "spaceInvaders") {
+      //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
+      console.log(enemy)
+      enemy.elem.style.display = "none";
+      enemy.collisionable = false;
+      //this.canvas.removeChild(enemy.elem);
+      //this.enemies[enemy.row][enemy.column] = null;
+      cancelAnimationFrame(enemy.animationFrameId);
+      clearTimeout(enemy.animationFrameId);
+      this.createExplosion(enemy);
+      
+      this.points += (enemy.type + 1) * 100;
 
-    if(this.enemies.every(x => x.every(e => e.elem.style.display === "none"))) {
-      //this.playerWins();
-      this.startScrollVertical();
+      if(this.enemies.every(x => x.every(e => e.elem.style.display === "none"))) {
+        //this.playerWins();
+        this.startScrollVertical();
+      }
+    } else {
+      this.createExplosion(enemy);
+      this.svEnemiesPool.storeObject(enemy);
+      this.points += (enemy.type + 1) * 100;
     }
   }
   /**
@@ -212,13 +243,20 @@ export class Game {
    * @param {CollisionableObject} collidingObject Enemy destroyed
    */
   createExplosion(collidingObject) {
+    console.log("////////// CREATE EXPLOSION")
     let explosion = new Image();
     explosion.src = "assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
     explosion.style.width = `${collidingObject.width + 25}px`;
     explosion.style.height = `${collidingObject.height + 25}px`;
-    explosion.style.top = `${collidingObject.y}px`;
-    explosion.style.left = `${collidingObject.x}px`;
+    if(this.gameState === "SV") {
+      let rect = collidingObject.elem.getBoundingClientRect();
+      explosion.style.top = `${rect.top}px`;
+      explosion.style.left = `${rect.left}px`;
+    } else {
+      explosion.style.top = `${collidingObject.y}px`;
+      explosion.style.left = `${collidingObject.x}px`;
+    }
 
     this.canvas.appendChild(explosion);
     setTimeout(() => {
@@ -240,10 +278,10 @@ export class Game {
     this.bonus = new BonusEnemy();
     setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5));
   }
-
+  //#endregion
   /************************************************************************************************************/
   /********************************************* ENEMIES MOVEMENT *********************************************/
-
+  //#region 
   /**
    * Get left-most x coordinate of column
    * @param {number} column Column index
@@ -321,10 +359,10 @@ export class Game {
       }
     }
   }
-
+  //#endregion
   /************************************************************************************************************/
   /************************************************* HELPERS **************************************************/
-
+  //#region
   /**
    * An enemy collides with player. Kill both the enemy and the player, player lose a live, the game reset or is game over if the player have no more lives.
    * @param {Enemy} enemy Enemy that collides with player
@@ -388,7 +426,7 @@ export class Game {
       this.keysDown[key] = false;
     }
   }
-
+  //#endregion
   /************************************************************************************************************/
   /*********************************************** GAME STATE *************************************************/
   /**
@@ -405,7 +443,8 @@ export class Game {
     this.bonus.cancelAnimation();
     this.bonus.resetPosition();
   }
-  startScrollVerticalEnemiesMovements() {
+  startScrollVerticalEnemiesMovements(lastIndex) {
+    //#region explanation
     /*
     Aleatorio aparecen de 0 a X enemigos
     Crea un enemigo o coje uno en display none
@@ -427,7 +466,6 @@ export class Game {
     ||
     Y === -enemy.height || Y === canvas heigth
      */
-    console.log("----------------- Nuevo enemigo scroll");
     //let x, y, finalX, finalY;
     /*if(Math.random() > 0.5){
       x = -400;
@@ -443,48 +481,43 @@ export class Game {
       finalY = -400;
       finalX = Math.random() * this.width;
     }*/
-    /*
-    this.svEnemiesPaths = [
-      [
-        [-400, this.height * 0.75], 
-        [this.width * 0.8, -400]
-      ], //abajo izq3/4 => arriba der3/4
-      [
-        [this.width * 0.8, this.height * 0.75], 
-        [-400, -400]
-      ], //abajo der3/4 => arriba izq3/4
-      [[-400, this.height * 0.25], [this.width * 0.2, -400]], //abajo izq1/4 => arriba der1/4
-      [[this.width * 0.2, this.height * 0.25], [-400, -400]], //abajo der1/4 => arriba izq1/4
-      [[-400, this.height * 0.5], [this.width * 0.5, this.height + 400]], //mitad izq => abajo mitad
-      [[this.width + 400, this.height * 0.5], [this.width * 0.5, this.height + 400]], //mitad der => abajo mitad
-      [[this.width + 400, -400], [-400, this.height + 400]], //arriba der => abajo izq
-      [[-400, -400], [this.width + 400, this.height + 400]], //arriba izq => abajo der
-      [[this.width + 400, this.height + 400], [-400, -400]], //abajo der => arriba izq
-      [[this.width * 0.5, this.height + 400], [this.width + 400, -400]], //abajo mitad => arriba derecha
-      [[this.width * 0.5, this.height + 400], [-400, -400]] //abajo mitad => arriba izquierda
-    ];
-    */
-    let index = Math.round(Math.random() * (this.svEnemiesPaths.length - 1));
+    //#endregion
+    console.log("----------------- Nuevo enemigo scroll");
+    let index;
+    while((index = Math.round(Math.random() * (this.svEnemiesPaths.length - 1))) === lastIndex);
+    
     console.log("------- PATRON ", index)
     let initial = this.svEnemiesPaths[index][0];
     let final = this.svEnemiesPaths[index][1];
     let shiptype = Math.round(Math.random() * 2);
+    let animationSegs = Math.round((Math.random() * 4) + 4);
+    let numberOfEnemies = Math.round((Math.random() * 3) + 2);
     //console.log("------ coords ", x, y, finalX, finalY);
-
-    for(let i = 0; i < 3; i++) {
-      let enemy = new Enemy(shiptype, initial[0],initial[1]);
+    //this.svEnemies = [enemy0, , enemy2, ..., enemyN] => svEnemies.length === 5
+    for(let i = 0; i < numberOfEnemies; i++) {
+      let enemy = this.svEnemiesPool.getNewObject(() => new Enemy(shiptype, initial[0], initial[1]), initial[0], initial[1]);
+      enemy.type = shiptype
       enemy.elem.classList.add("enemy");
       //console.log(`------ enemy of type ${enemy.type} is in `, enemy.x, enemy.y);
-      setTimeout(() => {enemy.moveToPoint([final[0], final[1]], 4)}, 1000 + (300 * i));
+      setTimeout(() => {
+        enemy.moveToPoint(
+          [final[0], final[1]], 
+          animationSegs, 
+          this.svEnemiesPaths[index][2][0], 
+          this.svEnemiesPaths[index][2][1])
+        }, 
+        1000 + (300 * i)
+      );
     }
     //enemy.elem.classList.add("enemiesFinal");
-    this.svEnemiesMoveTimerId = setTimeout(() => {this.startScrollVerticalEnemiesMovements();}, (Math.random() * 6000) + 2000);
+    this.svEnemiesMoveTimerId = setTimeout(() => {this.startScrollVerticalEnemiesMovements(index);}, (Math.random() * 6000) + 2000);
   }
   startScrollVertical() {
     /*
     Mover background
     Empiezan a aparecer enemigos de scroll vertical
     */
+    this.gameState = "SV";
     player.responsive = false;
     this.stopAllPlayerMovements();
     let pointsPopup = document.createElement("p");
@@ -525,11 +558,20 @@ export class Game {
     this.background.style.bottom = `${this.backgroundBottom}px`
     window.requestAnimationFrame(() => { this.moveBackgroundDown();});
   }
+  DELETEME_instaScrollVertical() {
+    this.gameState = "SV";
+    this.stopAllPlayerMovements();
+    player.responsive = true;
+    this.moveBackgroundDown();
+    this.startScrollVerticalEnemiesMovements();
+  }
   start() {
     player.responsive = true;
     player.collisionable = true;
-    game.moveEnemies();
-    game.createBonusEnemy();
-    //this.moveBackgroundDown();
+    //game.createEnemies();
+    //game.moveEnemies();
+    //game.createBonusEnemy();
+    //this.startScrollVertical();
+    this.DELETEME_instaScrollVertical();
   }
 }
