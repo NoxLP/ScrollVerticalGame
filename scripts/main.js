@@ -59,6 +59,6 @@ window.onload = () => {
     document.getElementById("menu").style.display = "none";
     document.getElementById("background").style.display = "block";
     player.responsive = false;
-    setTimeout(() => { game.start(); }, 3000);
+    setTimeout(() => { game.start(); }, 300);
   };
 };

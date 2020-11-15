@@ -16,7 +16,7 @@ export class Game {
     this.bulletTimeout = 250;
 
     this.background = document.getElementById("movingBackg");
-    this.backgroundBottom = 0;
+    this.backgroundBottom = 5200;
 
     this.canvas = document.getElementById("game");
     this.width = 1900;
@@ -568,10 +568,10 @@ export class Game {
   start() {
     player.responsive = true;
     player.collisionable = true;
-    //game.createEnemies();
-    //game.moveEnemies();
-    //game.createBonusEnemy();
+    game.createEnemies();
+    game.moveEnemies();
+    game.createBonusEnemy();
     //this.startScrollVertical();
-    this.DELETEME_instaScrollVertical();
+    //this.DELETEME_instaScrollVertical();
   }
 }
