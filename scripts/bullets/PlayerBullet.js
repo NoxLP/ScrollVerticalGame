@@ -10,6 +10,8 @@ export class PlayerBullet extends CollisionableObject {
     elem.src = "assets/images/bullets/playerBullet.png";
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1]);
+    
+    this.audio = game.audio.playAudio("assets/music/sounds/playerLaser.mp3");
   }
   /**
    * Iterates all enemies to see if collides with one of them

@@ -3,67 +3,72 @@ import { Player } from "./Player.js";
 
 export const normalizeVector = arr => {
   var length = Math.sqrt((arr[0] ** 2) + (arr[1] ** 2));
-  return [arr[0]/length, arr[1]/length];
+  return [arr[0] / length, arr[1] / length];
 }
 
-export const game = new Game(9);
+export const game = new Game(4);
 export const player = new Player();
 console.log(game);
 
 document.addEventListener("keydown", function (e) {
-  if(!player.responsive)
+  if (!player.responsive)
     return;
-    
+
+  /*
+  key Left => -1,  0
+  right =>     1,  0
+  up =>        0, -1
+  down =>      0,  1
+  */
+
+  switch(e.key) {
+    case "ArrowLeft":
+      player.playerDirection[0] = -1;
+      break;
+    case "ArrowRight":
+      player.playerDirection[0] = 1;
+      break;
+    case "ArrowUp":
+      if(game.gameState !== "spaceInvaders")
+        player.playerDirection[1] = -1;
+      break;
+    case "ArrowDown":
+      if(game.gameState !== "spaceInvaders")
+        player.playerDirection[1] = 1;
+      break;
+  }
+  if(!player.movementAnimationId)
+    player.move();
+
   console.log(e.key)
-  if (e.key === "ArrowLeft" && !game.keysDown.ArrowLeft) {
-    game.keysDown.ArrowRight = false;
-    game.keysDown.ArrowLeft = true;
-    if(!player.moving)
-      player.move();
-  }
-  if (e.key === "ArrowRight" && !game.keysDown.ArrowRight) {
-    game.keysDown.ArrowLeft = false;
-    game.keysDown.ArrowRight = true;
-    if(!player.moving)
-      player.move();
-  }
-  if (e.key === "ArrowUp" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowUp) {
-    game.keysDown.ArrowDown = false;
-    game.keysDown.ArrowUp = true;
-    if(!player.moving)
-      player.move();
-  }
-  if (e.key === "ArrowDown" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowDown) {
-    game.keysDown.ArrowUp = false;
-    game.keysDown.ArrowDown = true;
-    if(!player.moving)
-      player.move();
-  }
-  if (e.key === " " && !game.keysDown.Space) {
+  if (e.key === " " && !player.shooting) {
     console.log("SPACE")
-    game.keysDown.Space = true;
+    player.shooting = true;
     player.shoot();
   }
 });
 
 document.addEventListener("keyup", e => {
-  if(!player.responsive)
+  if (!player.responsive)
     return;
-    
-  if (e.key === "ArrowLeft") {
-    game.keysDown.ArrowLeft = false;
+
+  switch(e.key) {
+    case "ArrowLeft":
+      player.playerDirection[0] = 0;
+      break;
+    case "ArrowRight":
+      player.playerDirection[0] = 0;
+      break;
+    case "ArrowUp":
+      player.playerDirection[1] = 0;
+      break;
+    case "ArrowDown":
+      player.playerDirection[1] = 0;
+      break;
   }
-  if (e.key === "ArrowRight") {
-    game.keysDown.ArrowRight = false;
-  }
-  if (e.key === "ArrowUp" && game.gameState !== "spaceInvaders") {
-    game.keysDown.ArrowUp = false;
-  }
-  if (e.key === "ArrowDown" && game.gameState !== "spaceInvaders") {
-    game.keysDown.ArrowDown = false;
-  }
+  
   if (e.key === " ") {
-    game.keysDown.Space = false;
+    player.shooting = false;
   }
 });
 

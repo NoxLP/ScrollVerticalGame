@@ -83,7 +83,7 @@ export class Enemy extends CollisionableObject {
    * Move enemy to the right. Part of the classical movement pattern
    */
   moveEnemyLeftToRight() {
-    if (!game.enemyIsInCanvasColumn(game.siEnemiesPerRow - 1, game.canvasColumns - 1)) {
+    if (!game.rightColumnEnemyIsInCanvasRightColumn()) { //(!game.enemyIsInCanvasColumn(game.siEnemiesPerRow - 1, game.canvasColumns - 1)) {
       const nextCanvasColumnX = game.getXOfCanvasColumn(this.canvasColumn + 1);
       //console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
       this.moveRightToTarget(nextCanvasColumnX);
@@ -96,7 +96,7 @@ export class Enemy extends CollisionableObject {
    * Move enemy to the left. Part of the classical movement pattern
    */
   moveEnemyRightToLeft() {
-    if (!game.enemyIsInCanvasColumn(0, 0)) {
+    if(!game.leftColumnEnemyIsInCanvasLeftColumn()) { //(!game.enemyIsInCanvasColumn(0, 0)) {
       const nextCanvasColumnX = game.getXOfCanvasColumn(this.canvasColumn - 1);
       //console.log("moveEnemyLeftToRight", this.x, nextCanvasColumnX)
       this.moveLeftToTarget(nextCanvasColumnX);
@@ -134,10 +134,9 @@ export class Enemy extends CollisionableObject {
       let rect = this.elem.getBoundingClientRect();
       let collides = this.collideWithByBoundingRect(player);
       //console.log("**** check enmy collides ", rect.left, rect.top);
-      if(!collides && rect.left !== point[0] && rect.top !== point[1]) {
+      if (!collides && rect.left !== point[0] && rect.top !== point[1]) {
         this.moveAnimationId = window.requestAnimationFrame(checkIfCollideWithPlayerEachFrame);
-      }
-      else if (collides) {
+      } else if (collides) {
         game.enemyCollidesWithPlayer(this);
       } else {
         game.svEnemiesPool.storeObject(this);
@@ -146,29 +145,28 @@ export class Enemy extends CollisionableObject {
     checkIfCollideWithPlayerEachFrame();
 
     let shootingTime = (segs * 1000 / 3);
-    this.shootingAnimationId = setTimeout(() => 
-    { 
+    this.shootingAnimationId = setTimeout(() => {
       this.shoot();
-      this.shootingAnimationId = setTimeout(() => 
-      { 
-        this.shoot(); 
-      }, 
-      shootingTime + (Math.random() * 200));
-    }, 
-    shootingTime + (Math.random() * 700))
+      this.shootingAnimationId = setTimeout(() => {
+        this.shoot();
+      },
+        shootingTime + (Math.random() * 200));
+    },
+      shootingTime + (Math.random() * 700))
 
     setTimeout(() => { game.svEnemiesPool.storeIfNotStored(this); }, segs * 1000);
   }
   shoot() {
+    this.audio = game.audio.playAudio("assets/music/sounds/enemyLaser.mp3");
     let rect = this.elem.getBoundingClientRect();
-    let bullet, bulletInitialCoords = [rect.left + (this.width  / 2), rect.top + (this.height / 2)];
-    if(game.gameState === "spaceInvaders") {
+    let bullet, bulletInitialCoords = [rect.left + (this.width / 2), rect.top + (this.height / 2)];
+    if (game.gameState === "spaceInvaders") {
       bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(
         this.x, this.y + this.height - game.bulletSize[1]), this.x, this.y + this.height - game.bulletSize[1]);
-      bullet.move([0,1]);
+      bullet.move([0, 1]);
     } else {
       let direction;
-      switch(this.type) {
+      switch (this.type) {
         case 0:
           direction = normalizeVector([player.x - rect.left, player.y - rect.top]);
           console.log("direction", direction)
@@ -176,21 +174,21 @@ export class Enemy extends CollisionableObject {
           bullet.move(direction);
           break;
         case 1:
-          if(Math.random() > 0.5) { //horizontal
+          if (Math.random() > 0.5) { //horizontal
             bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
-            bullet.move([1,0]);
+            bullet.move([1, 0]);
             bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
-            bullet.move([-1,0]);
+            bullet.move([-1, 0]);
           } else { //vertical
             bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
-            bullet.move([0,1]);
+            bullet.move([0, 1]);
             bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
-            bullet.move([0,-1]);
+            bullet.move([0, -1]);
           }
           break;
         case 2:
-          direction = [0,1];
-          for(let i = 0; i < 4; i++) {
+          direction = [0, 1];
+          for (let i = 0; i < 4; i++) {
             bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
             bullet.move(direction);
             direction = [direction[1], -direction[0]];

@@ -38,11 +38,14 @@ button {
 }
 #menu {
   position: relative;
+  background-image: url("../assets/images/background/menuBackground.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
   top: 0;
   left: 0;
-  width: 1900px;
-  height: 970px;
-  margin: 0 auto;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
 }
 #game {
   position: relative;

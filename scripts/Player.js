@@ -16,10 +16,14 @@ export class Player extends CollisionableObject {
     this.shootTimer;
     this._lives = 3;
     this.responsive = true;
-    this.moving = false;
+    this.playerDirection = [0, 0];
+    this.movementAnimationId;
+    this.shooting = false;
   }
   get lives() { return this._lives; }
   loseLive() {
+    let audio = game.audio.playAudio("assets/music/sounds/playerLoseLive.wav", 0.3);
+
     let live = document.getElementById(`live${this._lives}`);
     live.style.filter = "brightness(0.3)";
     live.style.transition = "filter 1s ease-out";
@@ -33,30 +37,26 @@ export class Player extends CollisionableObject {
     }
   }
   move() {
-    if(!this.moving)
-      this.moving = true;
-
-    if (this.x > game.step && game.keysDown.ArrowLeft) {
-      this.x -= game.step;
-      window.requestAnimationFrame(() => { this.move(); });
-    } else if (this.x + this.width < game.width - game.step && game.keysDown.ArrowRight) {
-      this.x += game.step;
-      window.requestAnimationFrame(() => { this.move(); });
-    } else if (this.y > game.step && game.keysDown.ArrowUp) {
-      this.y -= game.step;
-      window.requestAnimationFrame(() => { this.move(); });
-    } else if (this.y + this.height < game.height - game.step && game.keysDown.ArrowDown) {
-      this.y += game.step;
-      window.requestAnimationFrame(() => { this.move(); });
-    } else {
-      this.moving = false;
+    if(this.playerDirection[0] === 0 && this.playerDirection[1] === 0) {
+      this.movementAnimationId = null;
+      return;
     }
+
+    let nextX = this.x + (this.playerDirection[0] * game.step);
+    let nextY = this.y + (this.playerDirection[1] * game.step);
+
+    if (nextX > 5 && nextX < game.width - this.width && 
+        nextY > 5 && nextY < game.height - this.height) {
+      this.x = nextX;
+      this.y = nextY;
+    }
+    this.movementAnimationId = window.requestAnimationFrame(() => { this.move(); });
   }
   /**
    * Create bullets while the spacebar is pressed
    */
   shoot() {
-    if(game.keysDown.Space) {
+    if(this.shooting) {
       //console.log("BULLET")
       const bullet = new PlayerBullet(
         this.x + (this.width / 2) - (game.bulletSize[0] / 2), 

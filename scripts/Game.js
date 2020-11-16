@@ -3,6 +3,7 @@ import { BonusEnemy } from "./BonusEnemy.js";
 import { game, player } from "./main.js";
 import { PointsCounter } from "./PointsCounter.js";
 import { ObjectPool } from "./ObjectPool.js";
+import { Sounds } from "./Sounds.js";
 
 /**
  * Class for control them all
@@ -114,16 +115,10 @@ export class Game {
     this._points = 0;
     this.pointsCounter = new PointsCounter(50);
 
-    this.keysDown = {
-      ArrowLeft: false,
-      ArrowRight: false,
-      ArrowUp: false,
-      ArrowDown: false,
-      Space: false
-    }
-
     this.svEnemiesPool = new ObjectPool();
     this.enemiesBulletsPool = new ObjectPool();
+
+    this.audio = new Sounds(0.5);
   }
 
   get points() { return this._points; }
@@ -139,7 +134,7 @@ export class Game {
    * Remove enemy
    * @param {Enemy} enemy Enemy to remove
    */
-  removeEnemy(enemy) {
+  removeEnemy(enemy, givePoints = true) {
     if (this.gameState === "spaceInvaders") {
       //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
       console.log(enemy)
@@ -151,7 +146,8 @@ export class Game {
       clearTimeout(enemy.moveAnimationId);
       this.createExplosion(enemy);
 
-      this.points += (enemy.type + 1) * 100;
+      if(givePoints)
+        this.points += (enemy.type + 1) * 100;
 
       if (this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
         //this.playerWins();
@@ -246,7 +242,8 @@ export class Game {
    * @param {CollisionableObject} collidingObject Enemy destroyed
    */
   createExplosion(collidingObject) {
-    console.log("////////// CREATE EXPLOSION")
+    //console.log("////////// CREATE EXPLOSION")
+    let audio = this.audio.playAudio("assets/music/sounds/explosion.mp3");
     let explosion = new Image();
     explosion.src = "assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
@@ -295,27 +292,47 @@ export class Game {
    * @param {number} row Row index
    */
   getYOfCanvasRow(row) { return this.canvasRowHeight * (row + 0.5); }
-  /**
-   * Returns true if enemy from enemies column is on canvas column. Used by the enemies movement pattern to decide when to move down.
-   * @param {number} enemyColumn Column in enemies array
-   * @param {number} canvasColumn Column in canvas
-   */
-  enemyIsInCanvasColumn(enemyColumn, canvasColumn) {
-    const enemy = this.siEnemies[0][enemyColumn];
-    return enemy &&
-      enemy.x > this.canvasColumnWidth * canvasColumn &&
-      enemy.x < this.canvasColumnWidth * (canvasColumn + 1);
+  leftColumnEnemyIsInCanvasLeftColumn() {
+    var mostLeftColumnWithEnemyAlive;
+    for(let j = 0; j < this.siEnemiesPerRow; j++) {
+      for(let i = 0; i < this.siEnemies.length; i++) {
+        mostLeftColumnWithEnemyAlive = this.siEnemies[i][j];
+        if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+          break;
+        }
+      }
+      if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+        break;
+      }
+    }
+
+    if(!mostLeftColumnWithEnemyAlive)
+      return false;
+
+    return mostLeftColumnWithEnemyAlive.x > 0 && mostLeftColumnWithEnemyAlive.x < this.canvasColumnWidth;
   }
-  /**
-   * Returns true if enemy from enemies row is on canvas row. Used by the enemies movement pattern.
-   * @param {number} enemyRow Row in enemies array
-   * @param {number} canvasRow Row in canvas
-   */
-  enemyIsInCanvasRow(enemyRow, canvasRow) {
-    const enemy = this.siEnemies[enemyRow][0];
-    return enemy &&
-      enemy.y >= canvasRow * this.canvasRowHeight + this.padding[0] &&
-      enemy.x < ((canvasColumn + 1) * this.canvasColumnWidth) + this.padding[1];
+  rightColumnEnemyIsInCanvasRightColumn() {
+    let mostLeftColumnWithEnemyAlive;
+    for(let j = this.siEnemiesPerRow - 1; j >= 0; j--) {
+      for(let i = 0; i < this.siEnemies.length; i++) {
+        mostLeftColumnWithEnemyAlive = this.siEnemies[i][j];
+        if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+          break;
+        }
+      }
+      if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+        break;
+      }
+    }
+    /*
+    j = 3, i = 0 => ...
+    j = 3, i = 1 => ...
+    */
+    if(!mostLeftColumnWithEnemyAlive)
+      return false;
+
+    return mostLeftColumnWithEnemyAlive.x > this.canvasColumnWidth * (this.canvasColumns - 1) &&
+      mostLeftColumnWithEnemyAlive.x < this.canvasColumnWidth * this.canvasColumns;
   }
   /**
    * Move all enemies in the classical pattern
@@ -354,7 +371,8 @@ export class Game {
           continue;
         }
       }
-      lastEnemy.shoot();
+      if(lastEnemy)
+        lastEnemy.shoot();
     }, 1500);
 
     for (let i = 0; i < this.siEnemies.length; i++) {
@@ -470,7 +488,7 @@ export class Game {
    * @param {Enemy} enemy Enemy that collides with player
    */
   enemyCollidesWithPlayer(enemy) {
-    this.removeEnemy(enemy);
+    this.removeEnemy(enemy, false);
     this.playerHitted();
   }
   /**
@@ -530,9 +548,8 @@ export class Game {
     }
   }
   stopAllPlayerMovements() {
-    for (let key in this.keysDown) {
-      this.keysDown[key] = false;
-    }
+    player.playerDirection = [0, 0];
+    player.shooting = false;
   }
   //#endregion
   /************************************************************************************************************/
