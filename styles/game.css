@@ -61,8 +61,6 @@ button {
 .bullet {
   position: absolute;
   filter: brightness(1.5) contrast(110%);
-  /*transition: width 5s ease-in 0s;*/
-  /*width: 5px;*/
 }
 .explosion {
   position: absolute;

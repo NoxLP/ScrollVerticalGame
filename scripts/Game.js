@@ -13,6 +13,7 @@ export class Game {
     this.step = 9;
     this.enemyFrameStep = 4;
     this.bulletStep = 15;
+    this.enemyBulletStep = 9;
     this.bulletTimeout = 250;
 
     this.background = document.getElementById("movingBackg");
@@ -51,9 +52,8 @@ export class Game {
     this.bonus;
     this.bonusTimeout = 10000;
     this.bonusPointsRange = [50, 450];
-    this.enemies = [];
-    this.svEnemiesPool = new ObjectPool();
-    this.enemiesPerRow = enemiesPerRow;
+    this.siEnemies = [];
+    this.siEnemiesPerRow = enemiesPerRow;
     this.svEnemiesMoveTimerId = null;
     this.svEasings = {
       linear: "linear",
@@ -121,6 +121,9 @@ export class Game {
       ArrowDown: false,
       Space: false
     }
+
+    this.svEnemiesPool = new ObjectPool();
+    this.enemiesBulletsPool = new ObjectPool();
   }
 
   get points() { return this._points; }
@@ -143,14 +146,14 @@ export class Game {
       enemy.elem.style.display = "none";
       enemy.collisionable = false;
       //this.canvas.removeChild(enemy.elem);
-      //this.enemies[enemy.row][enemy.column] = null;
-      cancelAnimationFrame(enemy.animationFrameId);
-      clearTimeout(enemy.animationFrameId);
+      //this.siEnemies[enemy.row][enemy.column] = null;
+      cancelAnimationFrame(enemy.moveAnimationId);
+      clearTimeout(enemy.moveAnimationId);
       this.createExplosion(enemy);
       
       this.points += (enemy.type + 1) * 100;
 
-      if(this.enemies.every(x => x.every(e => e.elem.style.display === "none"))) {
+      if(this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
         //this.playerWins();
         this.startScrollVertical();
       }
@@ -230,13 +233,13 @@ export class Game {
     i = 2 => enemies = [[], [], []]
     */
     for (let i = 0; i < 5; i++) {
-      this.enemies.push([]);
-      for (let j = 0; j < this.enemiesPerRow; j++) {
+      this.siEnemies.push([]);
+      for (let j = 0; j < this.siEnemiesPerRow; j++) {
         let coords = this.calculateCoordinatesByPosition(i, j);
-        this.enemies[i].push(new Enemy(Math.ceil(i / 2), coords[0], coords[1], i, j));
+        this.siEnemies[i].push(new Enemy(Math.ceil(i / 2), coords[0], coords[1], i, j));
       }
     }
-    console.log(this.enemies)
+    console.log(this.siEnemies)
   }
   /**
    * Create explosion when enemy gets destroyed
@@ -298,7 +301,7 @@ export class Game {
    * @param {number} canvasColumn Column in canvas
    */
   enemyIsInCanvasColumn(enemyColumn, canvasColumn) {
-    const enemy = this.enemies[0][enemyColumn];
+    const enemy = this.siEnemies[0][enemyColumn];
     return enemy &&
       enemy.x > this.canvasColumnWidth * canvasColumn &&
       enemy.x < this.canvasColumnWidth * (canvasColumn + 1);
@@ -309,7 +312,7 @@ export class Game {
    * @param {number} canvasRow Row in canvas
    */
   enemyIsInCanvasRow(enemyRow, canvasRow) {
-    const enemy = this.enemies[enemyRow][0];
+    const enemy = this.siEnemies[enemyRow][0];
     return enemy &&
       enemy.y >= canvasRow * this.canvasRowHeight + this.padding[0] &&
       enemy.x < ((canvasColumn + 1) * this.canvasColumnWidth) + this.padding[1];
@@ -317,7 +320,7 @@ export class Game {
   /**
    * Move all enemies in the classical pattern
    */
-  moveEnemies() {
+  moveSpaceInvadersEnemies() {
     /*
     Van de izquierda a derecha
     mientras que la esquina derecha del enemigo de la derecha no colisione con el límite de la derecha
@@ -334,10 +337,10 @@ export class Game {
 
     //While la fila de abajo no colisione con el jugador
 
-    for (let i = 0; i < this.enemies.length; i++) {
-      for (let j = 0; j < this.enemies[i].length; j++) {
-        //if (this.enemies[i][j])
-        let enemy = this.enemies[i][j];
+    for (let i = 0; i < this.siEnemies.length; i++) {
+      for (let j = 0; j < this.siEnemies[i].length; j++) {
+        //if (this.siEnemies[i][j])
+        let enemy = this.siEnemies[i][j];
         enemy.collisionable = true;
         enemy.elem.style.display = "inline";
         enemy.moveEnemyLeftToRight();
@@ -352,98 +355,24 @@ export class Game {
    * Cancel movement of all enemies
    */
   cancelAllEnemiesMovement() {
-    for (let i = 0; i < this.enemies.length; i++) {
-      for (let j = 0; j < this.enemies[i].length; j++) {
-        cancelAnimationFrame(this.enemies[i][j].animationFrameId);
-        clearTimeout(this.enemies[i][j].animationFrameId);
+    if(this.gameState === "spaceInvaders") {
+      for (let i = 0; i < this.siEnemies.length; i++) {
+        for (let j = 0; j < this.siEnemies[i].length; j++) {
+          cancelAnimationFrame(this.siEnemies[i][j].moveAnimationId);
+          clearTimeout(this.siEnemies[i][j].moveAnimationId);
+        }
       }
-    }
-  }
-  //#endregion
-  /************************************************************************************************************/
-  /************************************************* HELPERS **************************************************/
-  //#region
-  /**
-   * An enemy collides with player. Kill both the enemy and the player, player lose a live, the game reset or is game over if the player have no more lives.
-   * @param {Enemy} enemy Enemy that collides with player
-   */
-  enemyCollidesWithPlayer(enemy) {
-    this.removeEnemy(enemy);
-    this.playerHitted();
-  }
-  /**
-   * The player gets hitted by an object
-   */
-  playerHitted() {
-    /*
-    if vidas > 1
-      Explosiones
-      desaparece player
-      parar enemigos
-      parar nave bonus
-      Jugador pierde vida => player.lives
-      En el contador pierde una vida => classList.add(liveLost)
-      ¿mensaje?
-      TIMEOUT
-      Reset
-        jugador volver a position inicial
-        enemigos volver a position inicial
-          moverlos a su sitio
-          dejar de ser transparentes
-          vuelvan a ser colisionables
-    else
-      game over
-    */
-    this.createExplosion(player);
-    this.removePlayer();
-    this.cancelAllEnemiesMovement();
-    this.bonus.cancelAnimation();
-    this.bonus.resetPosition();
-    player.loseLive();
-
-    if (player.lives > 0) {
-      setTimeout(() => { alert("¡You lost a life!"); }, 1000);
-      setTimeout(() => {
-        this.reset();
-        this.moveEnemies();
-        this.moveBonusEnemy();
-        player.responsive = true;
-        player.collisionable = true;
-      }, 5000);
     } else {
-      setTimeout(() => {
-        alert("¡¡¡Game Over!!!");
-        player.resetLives();
-        this.pointsCounter.reset();
-        document.getElementById("menu").style.display = "block";
-        document.getElementById("background").style.display = "none";
-        this.reset();
-      }, 1000);
+      clearTimeout(this.svEnemiesMoveTimerId);
+      this.svEnemiesPool.showingObjects.forEach(x => {
+        clearTimeout(x.moveAnimationId);
+        clearTimeout(x.shootingAnimationId);
+        x.elem.style.top = getComputedStyle(x.elem).top;
+        x.elem.style.left = getComputedStyle(x.elem).left;
+      });
     }
   }
-  stopAllPlayerMovements() {
-    for(let key in this.keysDown) {
-      this.keysDown[key] = false;
-    }
-  }
-  //#endregion
-  /************************************************************************************************************/
-  /*********************************************** GAME STATE *************************************************/
-  /**
-   * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
-   */
-  reset() {
-    player.teleportToInitialPosition();
-    //All enemies to initial position
-    for (let i = 0; i < this.enemies.length; i++) {
-      for (let j = 0; j < this.enemies[i].length; j++) {
-        this.enemies[i][j].teleportToInitialPosition();
-      }
-    }
-    this.bonus.cancelAnimation();
-    this.bonus.resetPosition();
-  }
-  startScrollVerticalEnemiesMovements(lastIndex) {
+  scrollVerticalEnemiesMovements(lastIndex) {
     //#region explanation
     /*
     Aleatorio aparecen de 0 a X enemigos
@@ -499,18 +428,108 @@ export class Game {
       enemy.type = shiptype
       enemy.elem.classList.add("enemy");
       //console.log(`------ enemy of type ${enemy.type} is in `, enemy.x, enemy.y);
-      setTimeout(() => {
+      enemy.moveAnimationId = setTimeout(() => {
         enemy.moveToPoint(
           [final[0], final[1]], 
           animationSegs, 
           this.svEnemiesPaths[index][2][0], 
           this.svEnemiesPaths[index][2][1])
         }, 
-        1000 + (300 * i)
+        1000 + (500 * i)
       );
     }
     //enemy.elem.classList.add("enemiesFinal");
-    this.svEnemiesMoveTimerId = setTimeout(() => {this.startScrollVerticalEnemiesMovements(index);}, (Math.random() * 6000) + 2000);
+    this.svEnemiesMoveTimerId = setTimeout(() => {this.scrollVerticalEnemiesMovements(index);}, (Math.random() * 6000) + 2000);
+  }
+  //#endregion
+  /************************************************************************************************************/
+  /************************************************* HELPERS **************************************************/
+  //#region
+  /**
+   * An enemy collides with player. Kill both the enemy and the player, player lose a live, the game reset or is game over if the player have no more lives.
+   * @param {Enemy} enemy Enemy that collides with player
+   */
+  enemyCollidesWithPlayer(enemy) {
+    this.removeEnemy(enemy);
+    this.playerHitted();
+  }
+  /**
+   * The player gets hitted by an object
+   */
+  playerHitted() {
+    /*
+    if vidas > 1
+      Explosiones
+      desaparece player
+      parar enemigos
+      parar nave bonus
+      Jugador pierde vida => player.lives
+      En el contador pierde una vida => classList.add(liveLost)
+      ¿mensaje?
+      TIMEOUT
+      Reset
+        jugador volver a position inicial
+        enemigos volver a position inicial
+          moverlos a su sitio
+          dejar de ser transparentes
+          vuelvan a ser colisionables
+    else
+      game over
+    */
+    this.createExplosion(player);
+    this.removePlayer();
+    this.cancelAllEnemiesMovement();
+    this.bonus.cancelAnimation();
+    this.bonus.resetPosition();
+    player.loseLive();
+
+    if (player.lives > 0) {
+      setTimeout(() => { alert("¡You lost a life!"); }, 1000);
+      
+      this.svEnemiesPool.storeAllObjects();
+      setTimeout(() => {
+        this.reset();
+        if(this.gameState === "spaceInvaders") {
+          this.moveSpaceInvadersEnemies();
+          this.moveBonusEnemy();
+        } else {
+          this.scrollVerticalEnemiesMovements();
+        }
+        player.responsive = true;
+        player.collisionable = true;
+      }, 5000);
+    } else {
+      setTimeout(() => {
+        alert("¡¡¡Game Over!!!");
+        player.resetLives();
+        this.pointsCounter.reset();
+        document.getElementById("menu").style.display = "block";
+        document.getElementById("background").style.display = "none";
+        this.reset();
+      }, 1000);
+    }
+  }
+  stopAllPlayerMovements() {
+    for(let key in this.keysDown) {
+      this.keysDown[key] = false;
+    }
+  }
+  //#endregion
+  /************************************************************************************************************/
+  /*********************************************** GAME STATE *************************************************/
+  /**
+   * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
+   */
+  reset() {
+    player.teleportToInitialPosition();
+    //All enemies to initial position
+    for (let i = 0; i < this.siEnemies.length; i++) {
+      for (let j = 0; j < this.siEnemies[i].length; j++) {
+        this.siEnemies[i][j].teleportToInitialPosition();
+      }
+    }
+    this.bonus.cancelAnimation();
+    this.bonus.resetPosition();
   }
   startScrollVertical() {
     /*
@@ -524,23 +543,23 @@ export class Game {
     pointsPopup.innerText = "Level 1 cleared";
     pointsPopup.classList.add("levelClearedPopup");
     this.canvas.appendChild(pointsPopup);
-    for(let i = 0; i < this.enemies.length; i++) {
-      for(let j = 0; j < this.enemies[i].length; j++) {
-        let enemy = this.enemies[i][j];
-        if(enemy.animationFrameId) {
-          cancelAnimationFrame(enemy.animationFrameId);
-          clearTimeout(enemy.animationFrameId);
+    for(let i = 0; i < this.siEnemies.length; i++) {
+      for(let j = 0; j < this.siEnemies[i].length; j++) {
+        let enemy = this.siEnemies[i][j];
+        if(enemy.moveAnimationId) {
+          cancelAnimationFrame(enemy.moveAnimationId);
+          clearTimeout(enemy.moveAnimationId);
         }
         enemy.elem.style.display = "none";
         this.canvas.removeChild(enemy.elem);
       }
     }
-    this.enemies = [];
+    this.siEnemies = [];
     setTimeout(() => {
       this.canvas.removeChild(pointsPopup);
       player.responsive = true;
       this.moveBackgroundDown();
-      this.startScrollVerticalEnemiesMovements();
+      this.scrollVerticalEnemiesMovements();
     }, 3000);
   }
   playerWins() {
@@ -581,7 +600,7 @@ export class Game {
     player.responsive = true;
     player.collisionable = true;
     game.createEnemies();
-    game.moveEnemies();
+    game.moveSpaceInvadersEnemies();
     game.createBonusEnemy();
     //this.startScrollVertical();
     //this.DELETEME_instaScrollVertical();

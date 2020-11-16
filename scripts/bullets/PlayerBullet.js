@@ -17,12 +17,12 @@ export class PlayerBullet extends CollisionableObject {
   isCollidingWithAnEnemy() {
     //console.log("isCollidingWithAnEnemy", game.enemies)
     //This could be more efficiente storing enemies by their coords in some sort of grid, so one should only check for collisions in the same column of the bullet
-    for(let i = 0; i < game.enemies.length; i++) {
-      for(let j = 0; j < game.enemies[i].length; j++) {
-        //console.log("ENEMY", game.enemies[i])
-        if(this.collideWith(game.enemies[i][j])) {
-          //console.log(game.enemies[i][j])
-          return game.enemies[i][j];
+    for(let i = 0; i < game.siEnemies.length; i++) {
+      for(let j = 0; j < game.siEnemies[i].length; j++) {
+        //console.log("ENEMY", game.siEnemies[i])
+        if(this.collideWith(game.siEnemies[i][j])) {
+          //console.log(game.siEnemies[i][j])
+          return game.siEnemies[i][j];
         }
       }
     }

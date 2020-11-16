@@ -1,10 +1,14 @@
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
+export const normalizeVector = arr => {
+  var length = Math.sqrt((arr[0] ** 2) + (arr[1] ** 2));
+  return [arr[0]/length, arr[1]/length];
+}
+
 export const game = new Game(1);
 export const player = new Player();
 console.log(game);
-
 
 document.addEventListener("keydown", function (e) {
   if(!player.responsive)
