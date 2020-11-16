@@ -91,16 +91,16 @@ export class Game {
       [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.linear]], //abajo izq1/4 => arriba der1/4
       [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
       [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInBack]], //abajo izq1/4 => arriba der1/4
-      
+
       [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.easeInBack, this.svEasings.linear]], //abajo der3/4 => arriba izq
       [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.easeInCirc, this.svEasings.linear]], //abajo der3/4 => arriba izq
       [[this.width * 0.8, this.height], [-400, -400], [this.svEasings.linear, this.svEasings.easeInBack]], //abajo der3/4 => arriba izq      
       [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.linear, this.svEasings.easeOutCirc]], //abajo der3/4 => arriba izq      
-      
+
       [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutCirc]],//abajo izq3/4 => arriba der3/4
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.easeInCirc, this.svEasings.easeInCirc]], 
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutBack]], 
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInBack]], 
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.easeInCirc, this.svEasings.easeInCirc]],
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutBack]],
+      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInBack]],
       [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInCirc]]
     ];
 
@@ -140,7 +140,7 @@ export class Game {
    * @param {Enemy} enemy Enemy to remove
    */
   removeEnemy(enemy) {
-    if(this.gameState === "spaceInvaders") {
+    if (this.gameState === "spaceInvaders") {
       //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
       console.log(enemy)
       enemy.elem.style.display = "none";
@@ -150,10 +150,10 @@ export class Game {
       cancelAnimationFrame(enemy.moveAnimationId);
       clearTimeout(enemy.moveAnimationId);
       this.createExplosion(enemy);
-      
+
       this.points += (enemy.type + 1) * 100;
 
-      if(this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
+      if (this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
         //this.playerWins();
         this.startScrollVertical();
       }
@@ -252,7 +252,7 @@ export class Game {
     explosion.classList.add("explosion");
     explosion.style.width = `${collidingObject.width + 25}px`;
     explosion.style.height = `${collidingObject.height + 25}px`;
-    if(this.gameState === "SV") {
+    if (this.gameState === "SV") {
       let rect = collidingObject.elem.getBoundingClientRect();
       explosion.style.top = `${rect.top}px`;
       explosion.style.left = `${rect.left}px`;
@@ -336,6 +336,26 @@ export class Game {
     */
 
     //While la fila de abajo no colisione con el jugador
+    this.spaceInvadersEnemiesShootsTimerId = setInterval(() => {
+      /*
+      Elegimos una columna aleatoria
+      El último enemigo de esa columna 
+      Dispara
+
+      0 1 2 3
+      ceil(rand*4) => [1, 4] -1 => [0, 3]
+       */
+      let shootColumn = Math.ceil(Math.random() * this.siEnemiesPerRow) - 1;
+      let lastEnemy;
+      for (let i = 0; i < this.siEnemies.length; i++) {
+        if (this.siEnemies[i][shootColumn].elem.style.display !== "none") {
+          lastEnemy = this.siEnemies[i][shootColumn];
+        } else {
+          continue;
+        }
+      }
+      lastEnemy.shoot();
+    }, 1500);
 
     for (let i = 0; i < this.siEnemies.length; i++) {
       for (let j = 0; j < this.siEnemies[i].length; j++) {
@@ -355,7 +375,7 @@ export class Game {
    * Cancel movement of all enemies
    */
   cancelAllEnemiesMovement() {
-    if(this.gameState === "spaceInvaders") {
+    if (this.gameState === "spaceInvaders") {
       for (let i = 0; i < this.siEnemies.length; i++) {
         for (let j = 0; j < this.siEnemies[i].length; j++) {
           cancelAnimationFrame(this.siEnemies[i][j].moveAnimationId);
@@ -413,8 +433,8 @@ export class Game {
     //#endregion
     console.log("----------------- Nuevo enemigo scroll");
     let index;
-    while((index = Math.round(Math.random() * (this.svEnemiesPaths.length - 1))) === lastIndex);
-    
+    while ((index = Math.round(Math.random() * (this.svEnemiesPaths.length - 1))) === lastIndex);
+
     console.log("------- PATRON ", index)
     let initial = this.svEnemiesPaths[index][0];
     let final = this.svEnemiesPaths[index][1];
@@ -423,23 +443,23 @@ export class Game {
     let numberOfEnemies = Math.round((Math.random() * 3) + 2);
     //console.log("------ coords ", x, y, finalX, finalY);
     //this.svEnemies = [enemy0, , enemy2, ..., enemyN] => svEnemies.length === 5
-    for(let i = 0; i < numberOfEnemies; i++) {
+    for (let i = 0; i < numberOfEnemies; i++) {
       let enemy = this.svEnemiesPool.getNewObject(() => new Enemy(shiptype, initial[0], initial[1]), initial[0], initial[1]);
       enemy.type = shiptype
       enemy.elem.classList.add("enemy");
       //console.log(`------ enemy of type ${enemy.type} is in `, enemy.x, enemy.y);
       enemy.moveAnimationId = setTimeout(() => {
         enemy.moveToPoint(
-          [final[0], final[1]], 
-          animationSegs, 
-          this.svEnemiesPaths[index][2][0], 
+          [final[0], final[1]],
+          animationSegs,
+          this.svEnemiesPaths[index][2][0],
           this.svEnemiesPaths[index][2][1])
-        }, 
+      },
         1000 + (500 * i)
       );
     }
     //enemy.elem.classList.add("enemiesFinal");
-    this.svEnemiesMoveTimerId = setTimeout(() => {this.scrollVerticalEnemiesMovements(index);}, (Math.random() * 6000) + 2000);
+    this.svEnemiesMoveTimerId = setTimeout(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
   }
   //#endregion
   /************************************************************************************************************/
@@ -485,11 +505,11 @@ export class Game {
 
     if (player.lives > 0) {
       setTimeout(() => { alert("¡You lost a life!"); }, 1000);
-      
+
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
         this.reset();
-        if(this.gameState === "spaceInvaders") {
+        if (this.gameState === "spaceInvaders") {
           this.moveSpaceInvadersEnemies();
           this.moveBonusEnemy();
         } else {
@@ -510,7 +530,7 @@ export class Game {
     }
   }
   stopAllPlayerMovements() {
-    for(let key in this.keysDown) {
+    for (let key in this.keysDown) {
       this.keysDown[key] = false;
     }
   }
@@ -543,10 +563,10 @@ export class Game {
     pointsPopup.innerText = "Level 1 cleared";
     pointsPopup.classList.add("levelClearedPopup");
     this.canvas.appendChild(pointsPopup);
-    for(let i = 0; i < this.siEnemies.length; i++) {
-      for(let j = 0; j < this.siEnemies[i].length; j++) {
+    for (let i = 0; i < this.siEnemies.length; i++) {
+      for (let j = 0; j < this.siEnemies[i].length; j++) {
         let enemy = this.siEnemies[i][j];
-        if(enemy.moveAnimationId) {
+        if (enemy.moveAnimationId) {
           cancelAnimationFrame(enemy.moveAnimationId);
           clearTimeout(enemy.moveAnimationId);
         }
@@ -587,7 +607,7 @@ export class Game {
   moveBackgroundDown() {
     this.backgroundBottom -= 0.9;
     this.background.style.bottom = `${this.backgroundBottom}px`
-    window.requestAnimationFrame(() => { this.moveBackgroundDown();});
+    window.requestAnimationFrame(() => { this.moveBackgroundDown(); });
   }
   DELETEME_instaScrollVertical() {
     this.gameState = "SV";

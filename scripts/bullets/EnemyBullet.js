@@ -16,10 +16,10 @@ export class EnemyBullet extends CollisionableObject {
     this.id = lastId++;
   }
   _getAngle(direction) {
-    var angle = Math.atan2(direction[1], direction[0]);   //radians
+    var angle = Math.atan2(direction[1], direction[0]); //radians
     var degrees = (180*angle/Math.PI);  //degrees
-    //return degrees;  
-    return (-Math.round(degrees) + 90) % 360; //counter-clockwise to clockwise
+    //return degrees;
+    return (Math.round(degrees) + 90) % 360; //counter-clockwise to clockwise
   }
   /**
    * Move enemy bullet in established direction

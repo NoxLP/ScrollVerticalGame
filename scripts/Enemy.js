@@ -146,10 +146,16 @@ export class Enemy extends CollisionableObject {
     checkIfCollideWithPlayerEachFrame();
 
     let shootingTime = (segs * 1000 / 3);
-    this.shootingAnimationId = setTimeout(() => { 
+    this.shootingAnimationId = setTimeout(() => 
+    { 
       this.shoot();
-      this.shootingAnimationId = setTimeout(() => { this.shoot(); }, shootingTime + (Math.random() * 200));
-    }, shootingTime + (Math.random() * 600))
+      this.shootingAnimationId = setTimeout(() => 
+      { 
+        this.shoot(); 
+      }, 
+      shootingTime + (Math.random() * 200));
+    }, 
+    shootingTime + (Math.random() * 700))
 
     setTimeout(() => { game.svEnemiesPool.storeIfNotStored(this); }, segs * 1000);
   }
@@ -157,7 +163,8 @@ export class Enemy extends CollisionableObject {
     let rect = this.elem.getBoundingClientRect();
     let bullet, bulletInitialCoords = [rect.left + (this.width  / 2), rect.top + (this.height / 2)];
     if(game.gameState === "spaceInvaders") {
-      bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
+      bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(
+        this.x, this.y + this.height - game.bulletSize[1]), this.x, this.y + this.height - game.bulletSize[1]);
       bullet.move([0,1]);
     } else {
       let direction;
@@ -166,7 +173,6 @@ export class Enemy extends CollisionableObject {
           direction = normalizeVector([player.x - rect.left, player.y - rect.top]);
           console.log("direction", direction)
           bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
-
           bullet.move(direction);
           break;
         case 1:

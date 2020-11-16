@@ -6,7 +6,7 @@ export const normalizeVector = arr => {
   return [arr[0]/length, arr[1]/length];
 }
 
-export const game = new Game(1);
+export const game = new Game(9);
 export const player = new Player();
 console.log(game);
 
@@ -22,11 +22,11 @@ document.addEventListener("keydown", function (e) {
     game.keysDown.ArrowRight = true;
     player.moveRight();
   }
-  if (e.key === "ArrowUp" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+  if (e.key === "ArrowUp" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
     game.keysDown.ArrowUp = true;
     player.moveUp();
   }
-  if (e.key === "ArrowDown" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+  if (e.key === "ArrowDown" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
     game.keysDown.ArrowDown = true;
     player.moveDown();
   }
@@ -47,10 +47,10 @@ document.addEventListener("keyup", e => {
   if (e.key === "ArrowRight") {
     game.keysDown.ArrowRight = false;
   }
-  if (e.key === "ArrowUp") {
+  if (e.key === "ArrowUp" && game.gameState !== "spaceInvaders") {
     game.keysDown.ArrowUp = false;
   }
-  if (e.key === "ArrowDown") {
+  if (e.key === "ArrowDown" && game.gameState !== "spaceInvaders") {
     game.keysDown.ArrowDown = false;
   }
   if (e.key === " ") {
