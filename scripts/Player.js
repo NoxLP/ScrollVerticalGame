@@ -16,6 +16,7 @@ export class Player extends CollisionableObject {
     this.shootTimer;
     this._lives = 3;
     this.responsive = true;
+    this.moving = false;
   }
   get lives() { return this._lives; }
   loseLive() {
@@ -31,38 +32,24 @@ export class Player extends CollisionableObject {
       live.style.filter = "";
     }
   }
-  /**
-   * Move the player ship one step left
-   */
-  moveLeft = function () {
+  move() {
+    if(!this.moving)
+      this.moving = true;
+
     if (this.x > game.step && game.keysDown.ArrowLeft) {
       this.x -= game.step;
-      window.requestAnimationFrame(() => { this.moveLeft(); });
-    }
-  }
-  /**
-   * Move the player ship one step right
-   */
-  moveRight = function () {
-    if (this.x + this.width < game.width - game.step && game.keysDown.ArrowRight) {
+      window.requestAnimationFrame(() => { this.move(); });
+    } else if (this.x + this.width < game.width - game.step && game.keysDown.ArrowRight) {
       this.x += game.step;
-      window.requestAnimationFrame(() => { this.moveRight(); });
-    }
-  }
-  moveUp = function () {
-    console.log("UP", this.y, game.keysDown.ArrowUp)
-    if (this.y > game.step && game.keysDown.ArrowUp) {
-      console.log("INSIDE up")
+      window.requestAnimationFrame(() => { this.move(); });
+    } else if (this.y > game.step && game.keysDown.ArrowUp) {
       this.y -= game.step;
-      window.requestAnimationFrame(() => { this.moveUp(); });
-    }
-  }
-  moveDown = function () {
-    console.log("DOWN")
-    if (this.y + this.height < game.height - game.step && game.keysDown.ArrowDown) {
-      console.log("INSIDE down")
+      window.requestAnimationFrame(() => { this.move(); });
+    } else if (this.y + this.height < game.height - game.step && game.keysDown.ArrowDown) {
       this.y += game.step;
-      window.requestAnimationFrame(() => { this.moveDown(); });
+      window.requestAnimationFrame(() => { this.move(); });
+    } else {
+      this.moving = false;
     }
   }
   /**

@@ -13,22 +13,31 @@ console.log(game);
 document.addEventListener("keydown", function (e) {
   if(!player.responsive)
     return;
-
-  if (e.key === "ArrowLeft" && !game.keysDown.ArrowRight && !game.keysDown.ArrowLeft) {
+    
+  console.log(e.key)
+  if (e.key === "ArrowLeft" && !game.keysDown.ArrowLeft) {
+    game.keysDown.ArrowRight = false;
     game.keysDown.ArrowLeft = true;
-    player.moveLeft();
+    if(!player.moving)
+      player.move();
   }
-  if (e.key === "ArrowRight" && !game.keysDown.ArrowLeft && !game.keysDown.ArrowRight) {
+  if (e.key === "ArrowRight" && !game.keysDown.ArrowRight) {
+    game.keysDown.ArrowLeft = false;
     game.keysDown.ArrowRight = true;
-    player.moveRight();
+    if(!player.moving)
+      player.move();
   }
-  if (e.key === "ArrowUp" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+  if (e.key === "ArrowUp" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowUp) {
+    game.keysDown.ArrowDown = false;
     game.keysDown.ArrowUp = true;
-    player.moveUp();
+    if(!player.moving)
+      player.move();
   }
-  if (e.key === "ArrowDown" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowUp && !game.keysDown.ArrowDown) {
+  if (e.key === "ArrowDown" && game.gameState !== "spaceInvaders" && !game.keysDown.ArrowDown) {
+    game.keysDown.ArrowUp = false;
     game.keysDown.ArrowDown = true;
-    player.moveDown();
+    if(!player.moving)
+      player.move();
   }
   if (e.key === " " && !game.keysDown.Space) {
     console.log("SPACE")

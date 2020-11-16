@@ -37,7 +37,7 @@ export class EnemyBullet extends CollisionableObject {
     x += direction[0]
     y += direction[1]
     */
-    console.log("*********************** MOVING ENEMY BULLET", this)
+    //console.log("*********************** MOVING ENEMY BULLET", this)
     if(rotate)
       this.elem.style.transform = `rotate(${this._getAngle(direction)}deg)`
     if (this.y > 0 && //limite superior
@@ -45,21 +45,21 @@ export class EnemyBullet extends CollisionableObject {
       this.x > 0 && //limite izq
       this.x + this.width) //limite der
     {
-      console.log("Bala moviendose");
+      //console.log("Bala moviendose");
       this.y += (direction[1] * game.enemyBulletStep);
       this.x += (direction[0] * game.enemyBulletStep);
 
       var collidingPlayer = this.collideWith(player);
 
       if (collidingPlayer) {
-        console.log("collidingPlayer")
+        //console.log("collidingPlayer")
         game.playerHitted();
         game.canvas.removeChild(this.elem);
       } else {
         window.requestAnimationFrame(() => { this.move(direction, false); });
       }
     } else {
-      console.log("REMOVE BULLET")
+      //console.log("REMOVE BULLET")
       game.canvas.removeChild(this.elem);
     }
   }
