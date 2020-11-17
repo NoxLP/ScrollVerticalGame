@@ -6,7 +6,7 @@ export const normalizeVector = arr => {
   return [arr[0] / length, arr[1] / length];
 }
 
-export const game = new Game(4);
+export const game = new Game(1);
 export const player = new Player();
 console.log(game);
 
@@ -35,6 +35,9 @@ document.addEventListener("keydown", function (e) {
     case "ArrowDown":
       if(game.gameState !== "spaceInvaders")
         player.playerDirection[1] = 1;
+      break;
+    case "F10":
+      console.log("F10")
       break;
   }
   if(!player.movementAnimationId)

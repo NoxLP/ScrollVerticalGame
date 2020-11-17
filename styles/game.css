@@ -10,11 +10,23 @@ body {
 }
 button {
   position: absolute;
-  height: 100px;
+  height: 80px;
   width: 200px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  background: linear-gradient(rgba(47, 47, 235, 0.863), rgb(130, 189, 238));
+  border-radius: 40px;
+  font: bold 50px 'pointsFont';
+  color: rgb(18, 228, 228);
+  text-shadow: 5px 5px black;
+  border: none;
+  box-shadow: 2px 2px rgba(47, 47, 235, 0.863);
+  outline: none;
+}
+button:hover {
+  text-shadow: 2px 2px black;
+  border: 1px solid white;
 }
 
 #background {
@@ -90,9 +102,11 @@ button {
 }
 .levelClearedPopup {
   position: absolute;
-  font-size: 70px;
+  display: inline-block;
   color: white;
+  text-shadow: 2px 2px rgb(2, 117, 117);
+  font: bold 80px "pointsFont";
   top: 50%;
   left: 50%;
-  transform: translate(-100%, -50%);
+  transform: translate(-50%, -100%);
 }

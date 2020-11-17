@@ -25,11 +25,10 @@ export class Game {
     this.canvas.style.width = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
 
-    //this.padding = [20, 10];
     this.canvasRows = 10;
     this.canvasColumns = enemiesPerRow + 3;
-    this.canvasRowHeight = this.height / this.canvasRows; //(this.height - (this.padding[1] * 2)) / this.canvasRows;
-    this.canvasColumnWidth = this.width / this.canvasColumns; //(this.width - (this.padding[0] * 2)) / this.canvasColumns;
+    this.canvasRowHeight = this.height / this.canvasRows;
+    this.canvasColumnWidth = this.width / this.canvasColumns;
     
     this.bonus;
     this.bonusSize = [80, 100];
@@ -97,9 +96,9 @@ export class Game {
 
     this.playerSize = [80, 80];
     this.playerInitialCoords = [
-      (this.width / 2) - (this.playerSize[0] / 2),// + this.padding[0],
+      (this.width / 2) - (this.playerSize[0] / 2),
       (this.canvasRowHeight * (this.canvasRows - 1)) + (this.canvasRowHeight / 2) - (this.playerSize[1] / 2)
-    ];// - this.padding[1]];
+    ];
     this.bulletSize = [60, 50];
 
     this._points = 0;
@@ -109,6 +108,12 @@ export class Game {
     this.enemiesBulletsPool = new ObjectPool();
 
     this.audio = new Sounds(0.5);
+
+    this.messagePopup = document.createElement("p");
+    this.messagePopup.classList.add("levelClearedPopup");
+    this.messagePopup.style.display = "none";
+    this.messagePopup.style.zIndex = 100000;
+    this.canvas.appendChild(this.messagePopup);
   }
 
   get points() { return this._points; }
@@ -349,7 +354,7 @@ export class Game {
       let shootColumn = Math.ceil(Math.random() * this.siEnemiesPerRow) - 1;
       let lastEnemy;
       for (let i = 0; i < this.siEnemies.length; i++) {
-        if (this.siEnemies[i][shootColumn].elem.style.display !== "none") {
+        if (this.siEnemies[i][shootColumn] && this.siEnemies[i][shootColumn].elem.style.display !== "none") {
           lastEnemy = this.siEnemies[i][shootColumn];
         } else {
           continue;
@@ -384,6 +389,7 @@ export class Game {
           clearTimeout(this.siEnemies[i][j].moveAnimationId);
         }
       }
+      clearInterval(this.spaceInvadersEnemiesShootsTimerId);
     } else {
       clearTimeout(this.svEnemiesMoveTimerId);
       this.svEnemiesPool.showingObjects.forEach(x => {
@@ -508,7 +514,7 @@ export class Game {
     player.loseLive();
 
     if (player.lives > 0) {
-      setTimeout(() => { alert("¡You lost a life!"); }, 1000);
+      setTimeout(() => {this.showMessage("You lost a life"); }, 500);
 
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
@@ -538,12 +544,16 @@ export class Game {
   }
   gameOver() {
     this.audio.changeMusicByGameState();
-    alert("¡¡¡Game Over!!!");
+    this.showMessage("Game Over");
+    this.audio.playAudio("assets/music/sounds/gameOver.mp3");
     player.resetLives();
     this.pointsCounter.reset();
-    document.getElementById("menu").style.display = "block";
-    document.getElementById("background").style.display = "none";
     this.reset();
+    
+    setTimeout(() => {
+      document.getElementById("menu").style.display = "block";
+      document.getElementById("background").style.display = "none";
+    },3000);
   }
   /**
    * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
@@ -561,6 +571,14 @@ export class Game {
       this.bonus.resetPosition();
     }
   }
+  showMessage(message) {
+    this.messagePopup.innerText = message;
+    this.messagePopup.style.display = "inline-block";
+    setTimeout(() => {this.hideMessage()},3000);
+  }
+  hideMessage() {
+    this.messagePopup.style.display = "none";
+  }
   startScrollVertical() {
     /*
     Mover background
@@ -569,10 +587,8 @@ export class Game {
     this.gameState = "SV";
     player.responsive = false;
     this.stopAllPlayerMovements();
-    let pointsPopup = document.createElement("p");
-    pointsPopup.innerText = "Level 1 cleared";
-    pointsPopup.classList.add("levelClearedPopup");
-    this.canvas.appendChild(pointsPopup);
+    this.showMessage("Stage 1 cleared. All engines ON");
+    
     for (let i = 0; i < this.siEnemies.length; i++) {
       for (let j = 0; j < this.siEnemies[i].length; j++) {
         let enemy = this.siEnemies[i][j];
@@ -586,7 +602,6 @@ export class Game {
     }
     this.siEnemies = [];
     setTimeout(() => {
-      this.canvas.removeChild(pointsPopup);
       player.responsive = true;
       this.moveBackgroundDown();
       this.scrollVerticalEnemiesMovements();
@@ -606,7 +621,7 @@ export class Game {
     player.responsive = false;
 
     setTimeout(() => {
-      alert(`You Won Crack! Your points are: ${this.pointsCounter.showedPoints}`);
+      this.showMessage(`You Won Crack. Your points are: ${this.pointsCounter.showedPoints}`);
       player.resetLives();
       this.pointsCounter.reset();
       document.getElementById("menu").style.display = "block";
@@ -630,10 +645,10 @@ export class Game {
     player.responsive = true;
     player.collisionable = true;
     this.audio.changeMusicByGameState();
-    //game.createEnemies();
-    //game.moveSpaceInvadersEnemies();
-    //game.createBonusEnemy();
-    this.startScrollVertical();
+    game.createEnemies();
+    game.moveSpaceInvadersEnemies();
+    game.createBonusEnemy();
+    //this.startScrollVertical();
     //this.DELETEME_instaScrollVertical();
   }
 }

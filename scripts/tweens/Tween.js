@@ -144,7 +144,8 @@ export class Tween {
         /*
         |   shoot   |
         */
-        if(this._shootPercentages.some(perc => this._xPercentage > perc - (this._percentagePerStep * 0.5) && this._xPercentage < perc + (this._percentagePerStep * 0.5)))
+        if(this._enemy.x > 0 && this._enemy.x < game.width && this._enemy.y > 0 && this._enemy.y < game.height &&
+          this._shootPercentages.some(perc => this._xPercentage > perc - (this._percentagePerStep * 0.5) && this._xPercentage < perc + (this._percentagePerStep * 0.5)))
           this._enemy.shoot();
 
         if (this._tickCallback)
