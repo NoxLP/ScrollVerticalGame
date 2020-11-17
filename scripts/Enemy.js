@@ -1,6 +1,9 @@
 import { CollisionableObject } from "./base/CollisionableObject.js";
 import { EnemyBullet } from "./bullets/EnemyBullet.js";
 import { game, player, normalizeVector } from "./main.js";
+import { Tween } from "./tweens/Tween.js";
+//DELETEME
+import { easings } from "./tweens/easings.js";
 
 var lastId = -1;
 
@@ -20,9 +23,10 @@ export class Enemy extends CollisionableObject {
     this.row = row;
     this.column = column;
 
-    this.lastMove = null;
-    this.moveAnimationId = null;
-    this.shootingAnimationId = null;
+    this.lastMove;
+    //this.moveAnimationId = null;
+    this.myMovementTween;
+    this.shootingAnimationId;
   }
   get type() { return this._type; }
   set type(value) {
@@ -34,7 +38,7 @@ export class Enemy extends CollisionableObject {
   moveRightToTarget(target) {
     if (this.centerX < target) {
       //console.log("leftToRight");
-      this.x += game.enemyFrameStep;
+      this.x += game.siEnemyFrameStep;
       if (this.collideWith(player)) {
         game.enemyCollidesWithPlayer(this);
         return;
@@ -49,7 +53,7 @@ export class Enemy extends CollisionableObject {
   moveLeftToTarget(target) {
     if (this.centerX > target) {
       //console.log("leftToRight");
-      this.x -= game.enemyFrameStep;
+      this.x -= game.siEnemyFrameStep;
       if (this.collideWith(player)) {
         game.enemyCollidesWithPlayer(this);
         return;
@@ -64,7 +68,7 @@ export class Enemy extends CollisionableObject {
   moveDownToTarget(target) {
     if (this.centerY < target) {
       //console.log("moveDown")
-      this.y += game.enemyFrameStep;
+      this.y += game.siEnemyFrameStep;
       if (this.collideWith(player)) {
         game.enemyCollidesWithPlayer(this);
         return;
@@ -122,44 +126,41 @@ export class Enemy extends CollisionableObject {
     if (!this.collisionable)
       this.collisionable = true;
   }
-  moveToPoint(point, segs, leftEasing, topEasing) {
-    //console.log("******* moveToPoint", `left ${segs}s ${leftEasing}, top ${segs}s ${topEasing}`)
-    //this.elem.style.transitionProperty = "top, left";
-    this.elem.style.transition = `left ${segs}s ${leftEasing}, top ${segs}s ${topEasing}`;
-    this.x = point[0];
-    this.y = point[1];
-    //console.log("****** enemy moved to ", this.elem.style.left, this.elem.style.top);
-
-    const checkIfCollideWithPlayerEachFrame = () => {
-      let rect = this.elem.getBoundingClientRect();
-      let collides = this.collideWithByBoundingRect(player);
-      //console.log("**** check enmy collides ", rect.left, rect.top);
-      if (!collides && rect.left !== point[0] && rect.top !== point[1]) {
-        this.moveAnimationId = window.requestAnimationFrame(checkIfCollideWithPlayerEachFrame);
-      } else if (collides) {
-        game.enemyCollidesWithPlayer(this);
-      } else {
-        game.svEnemiesPool.storeObject(this);
+  moveToPoint(point, speedFactor, leftEasing, topEasing) {
+    //console.log("MOVE TO POINT ", this)
+    if(this.myMovementTween) {
+      //if enemy is already in the middle of a movement tween, better to return false. If want to cancel the current tween, one can always pause or stop it before beginning a new movement
+      if(this.myMovementTween.running)
+        return false;
+      
+      //if enemy was in a tween AND the tween was paused, stopped, or finished, then just check if it was only paused and stop it without calling the final callback
+      if(this.myMovementTween.paused) {
+        this.myMovementTween.stopWithoutCallback = true;
+        this.myMovementTween.stop();
       }
     }
-    checkIfCollideWithPlayerEachFrame();
 
-    let shootingTime = (segs * 1000 / 3);
-    this.shootingAnimationId = setTimeout(() => {
-      this.shoot();
-      this.shootingAnimationId = setTimeout(() => {
-        this.shoot();
-      },
-        shootingTime + (Math.random() * 200));
-    },
-      shootingTime + (Math.random() * 700))
+    const checkIfCollideWithPlayerEachFrame = () => {
+      if(this.collideWith(player)) {
+        game.enemyCollidesWithPlayer(this);
+      }
+    }
 
-    setTimeout(() => { game.svEnemiesPool.storeIfNotStored(this); }, segs * 1000);
+    this.myMovementTween = new Tween(
+      this, 
+      speedFactor, 
+      point, 
+      2, 
+      topEasing, 
+      leftEasing, 
+      checkIfCollideWithPlayerEachFrame, 
+      () => { game.svEnemiesPool.storeObject(this); });
+    
+    this.myMovementTween.start();
   }
   shoot() {
     this.audio = game.audio.playAudio("assets/music/sounds/enemyLaser.mp3");
-    let rect = this.elem.getBoundingClientRect();
-    let bullet, bulletInitialCoords = [rect.left + (this.width / 2), rect.top + (this.height / 2)];
+    let bullet, bulletInitialCoords = [this.x + (this.width / 2), this.y + (this.height / 2)];
     if (game.gameState === "spaceInvaders") {
       bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(
         this.x, this.y + this.height - game.bulletSize[1]), this.x, this.y + this.height - game.bulletSize[1]);
@@ -168,7 +169,7 @@ export class Enemy extends CollisionableObject {
       let direction;
       switch (this.type) {
         case 0:
-          direction = normalizeVector([player.x - rect.left, player.y - rect.top]);
+          direction = normalizeVector([player.x - this.x, player.y - this.y]);
           console.log("direction", direction)
           bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
           bullet.move(direction);

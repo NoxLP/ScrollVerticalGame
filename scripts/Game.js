@@ -4,6 +4,7 @@ import { game, player } from "./main.js";
 import { PointsCounter } from "./PointsCounter.js";
 import { ObjectPool } from "./ObjectPool.js";
 import { Sounds } from "./Sounds.js";
+import { easings } from "./tweens/easings.js";
 
 /**
  * Class for control them all
@@ -12,9 +13,7 @@ export class Game {
   constructor(enemiesPerRow) {
     this.gameState = "spaceInvaders";
     this.step = 9;
-    this.enemyFrameStep = 4;
     this.bulletStep = 15;
-    this.enemyBulletStep = 9;
     this.bulletTimeout = 250;
 
     this.background = document.getElementById("movingBackg");
@@ -31,13 +30,15 @@ export class Game {
     this.canvasColumns = enemiesPerRow + 3;
     this.canvasRowHeight = this.height / this.canvasRows; //(this.height - (this.padding[1] * 2)) / this.canvasRows;
     this.canvasColumnWidth = this.width / this.canvasColumns; //(this.width - (this.padding[0] * 2)) / this.canvasColumns;
-
+    
+    this.bonus;
+    this.bonusSize = [80, 100];
+    this.bonusTimeout = 10000;
     this.enemiesSize = [
       [50, 50],
       [65, 65],
       [80, 80]
     ];
-    this.bonusSize = [80, 100];
     /*
     new Array(5) === [null, null, null, null, null]
     for(i=0;i<length;i++)
@@ -50,59 +51,48 @@ export class Game {
       [,,,,,,,]
     ]
     */
-    this.bonus;
-    this.bonusTimeout = 10000;
     this.bonusPointsRange = [50, 450];
+    this.siEnemyFrameStep = 4;
+    this.svEnemySpeed = 200;
+    this.enemyBulletStep = 9;
     this.siEnemies = [];
     this.siEnemiesPerRow = enemiesPerRow;
     this.svEnemiesMoveTimerId = null;
-    this.svEasings = {
-      linear: "linear",
-      easeInSine: "cubic-bezier(0.12, 0, 0.39, 0)",
-      easeOutSine: "cubic-bezier(0.61, 1, 0.88, 1)",
-      easeInOutSine: "cubic-bezier(0.37, 0, 0.63, 1)",
-      easeInBack: "cubic-bezier(0.36, 0.5, 0.66, -0.56)",
-      easeOutBack: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-      easeInOutBack: "cubic-bezier(0.68, -0.6, 0.32, 1.6)",
-      easeInCirc: "cubic-bezier(0.55, 0, 1, 0.45)",
-      easeOutCirc: "cubic-bezier(0, 0.55, 0.45, 1)",
-      easeInOutCirc: "cubic-bezier(0.85, 0, 0.15, 1)"
-    };
     this.svEnemiesPaths = [
-      [[this.width + 400, 0], [-400, this.height * 0.9], [this.svEasings.easeInOutSine, this.svEasings.easeInOutBack]],
-      [[-400, this.height * 0.2], [this.width + 400, this.height * 0.85], [this.svEasings.linear, this.svEasings.easeInOutBack]],
-      [[this.width + 400, this.height * 0.2], [-400, this.height * 0.7], [this.svEasings.linear, this.svEasings.easeInOutBack]],
-      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.2], [this.svEasings.linear, this.svEasings.easeInOutBack]],
+      [[this.width + 80, 0], [-80, this.height * 0.9], [easings.easeInOutSine, easings.easeInOutBack]],
+      [[-80, this.height * 0.2], [this.width + 80, this.height * 0.85], [easings.linear, easings.easeInOutBack]],
+      [[this.width + 80, this.height * 0.2], [-80, this.height * 0.7], [easings.linear, easings.easeInOutBack]],
+      [[-80, this.height * 0.7], [this.width + 80, this.height * 0.2], [easings.linear, easings.easeInOutBack]],
 
-      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.5], [this.svEasings.easeInOutSine, this.svEasings.easeInOutBack]],
-      [[-400, this.height * 0.7], [this.width + 400, this.height * 0.5], [this.svEasings.easeInCirc, this.svEasings.easeInOutBack]],
+      [[-80, this.height * 0.7], [this.width + 80, this.height * 0.5], [easings.easeInOutSine, easings.easeInOutBack]],
+      [[-80, this.height * 0.7], [this.width + 80, this.height * 0.5], [easings.easeInCirc, easings.easeInOutBack]],
 
-      [[-400, -400], [this.width, this.height + 400], [this.svEasings.easeOutCirc, this.svEasings.linear]], //arriba izq => abajo der
-      [[-400, -400], [this.width, this.height + 400], [this.svEasings.easeOutCirc, this.svEasings.easeOutCirc]], //arriba izq => abajo der
-      [[-400, -400], [this.width, this.height + 400], [this.svEasings.linear, this.svEasings.easeInCirc]], //arriba izq => abajo der
+      [[-80, -80], [this.width, this.height + 80], [easings.easeOutCirc, easings.linear]], //arriba izq => abajo der
+      [[-80, -80], [this.width, this.height + 80], [easings.easeOutCirc, easings.easeOutCirc]], //arriba izq => abajo der
+      [[-80, -80], [this.width, this.height + 80], [easings.linear, easings.easeInCirc]], //arriba izq => abajo der
 
-      [[this.width, -400], [-400, this.height + 400], [this.svEasings.linear, this.svEasings.easeOutCirc]], //arriba der => abajo izq
-      [[this.width, -400], [-400, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.easeOutCirc]], //arriba der => abajo izq
-      [[this.width, -400], [-400, this.height + 400], [this.svEasings.easeOutCirc, this.svEasings.easeOutCirc]], //arriba der => abajo izq
-      [[this.width, -400], [-400, this.height + 400], [this.svEasings.easeInCirc, this.svEasings.linear]], //arriba der => abajo izq
+      [[this.width, -80], [-80, this.height + 80], [easings.linear, easings.easeOutCirc]], //arriba der => abajo izq
+      [[this.width, -80], [-80, this.height + 80], [easings.easeOutBack, easings.easeOutCirc]], //arriba der => abajo izq
+      [[this.width, -80], [-80, this.height + 80], [easings.easeOutCirc, easings.easeOutCirc]], //arriba der => abajo izq
+      [[this.width, -80], [-80, this.height + 80], [easings.easeInCirc, easings.linear]], //arriba der => abajo izq
 
-      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
-      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.easeInCirc]], //abajo izq1/4 => arriba der1/4
-      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInCirc]], //abajo izq1/4 => arriba der1/4
-      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.easeOutBack, this.svEasings.linear]], //abajo izq1/4 => arriba der1/4
-      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
-      [[-400, this.height * 0.25], [this.width * 0.8, this.height + 400], [this.svEasings.linear, this.svEasings.easeInBack]], //abajo izq1/4 => arriba der1/4
+      [[-80, this.height * 0.25], [this.width * 0.8, this.height + 80], [easings.easeOutBack, easings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
+      [[-80, this.height * 0.25], [this.width * 0.8, this.height + 80], [easings.easeOutBack, easings.easeInCirc]], //abajo izq1/4 => arriba der1/4
+      [[-80, this.height * 0.25], [this.width * 0.8, this.height + 80], [easings.linear, easings.easeInCirc]], //abajo izq1/4 => arriba der1/4
+      [[-80, this.height * 0.25], [this.width * 0.8, this.height + 80], [easings.easeOutBack, easings.linear]], //abajo izq1/4 => arriba der1/4
+      [[-80, this.height * 0.25], [this.width * 0.8, this.height + 80], [easings.linear, easings.easeInOutBack]], //abajo izq1/4 => arriba der1/4
+      [[-80, this.height * 0.25], [this.width * 0.8, this.height + 80], [easings.linear, easings.easeInBack]], //abajo izq1/4 => arriba der1/4
 
-      [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.easeInBack, this.svEasings.linear]], //abajo der3/4 => arriba izq
-      [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.easeInCirc, this.svEasings.linear]], //abajo der3/4 => arriba izq
-      [[this.width * 0.8, this.height], [-400, -400], [this.svEasings.linear, this.svEasings.easeInBack]], //abajo der3/4 => arriba izq      
-      [[this.width * 0.8, this.height + 400], [-400, -400], [this.svEasings.linear, this.svEasings.easeOutCirc]], //abajo der3/4 => arriba izq      
+      [[this.width * 0.8, this.height + 80], [-80, -80], [easings.easeInBack, easings.linear]], //abajo der3/4 => arriba izq
+      [[this.width * 0.8, this.height + 80], [-80, -80], [easings.easeInCirc, easings.linear]], //abajo der3/4 => arriba izq
+      [[this.width * 0.8, this.height], [-80, -80], [easings.linear, easings.easeInBack]], //abajo der3/4 => arriba izq      
+      [[this.width * 0.8, this.height + 80], [-80, -80], [easings.linear, easings.easeOutCirc]], //abajo der3/4 => arriba izq      
 
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutCirc]],//abajo izq3/4 => arriba der3/4
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.easeInCirc, this.svEasings.easeInCirc]],
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInOutBack]],
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInBack]],
-      [[-400, this.height * 0.75], [this.width * 0.8, -400], [this.svEasings.linear, this.svEasings.easeInCirc]]
+      [[-80, this.height * 0.75], [this.width * 0.8, -80], [easings.linear, easings.easeInOutCirc]],//abajo izq3/4 => arriba der3/4
+      [[-80, this.height * 0.75], [this.width * 0.8, -80], [easings.easeInCirc, easings.easeInCirc]],
+      [[-80, this.height * 0.75], [this.width * 0.8, -80], [easings.linear, easings.easeInOutBack]],
+      [[-80, this.height * 0.75], [this.width * 0.8, -80], [easings.linear, easings.easeInBack]],
+      [[-80, this.height * 0.75], [this.width * 0.8, -80], [easings.linear, easings.easeInCirc]]
     ];
 
     this.playerSize = [80, 80];
@@ -249,14 +239,8 @@ export class Game {
     explosion.classList.add("explosion");
     explosion.style.width = `${collidingObject.width + 25}px`;
     explosion.style.height = `${collidingObject.height + 25}px`;
-    if (this.gameState === "SV") {
-      let rect = collidingObject.elem.getBoundingClientRect();
-      explosion.style.top = `${rect.top}px`;
-      explosion.style.left = `${rect.left}px`;
-    } else {
-      explosion.style.top = `${collidingObject.y}px`;
-      explosion.style.left = `${collidingObject.x}px`;
-    }
+    explosion.style.top = `${collidingObject.y}px`;
+    explosion.style.left = `${collidingObject.x}px`;
 
     this.canvas.appendChild(explosion);
     setTimeout(() => {
@@ -457,7 +441,7 @@ export class Game {
     let initial = this.svEnemiesPaths[index][0];
     let final = this.svEnemiesPaths[index][1];
     let shiptype = Math.round(Math.random() * 2);
-    let animationSegs = Math.round((Math.random() * 4) + 4);
+    //let animationSegs = Math.round((Math.random() * 4) + 4);
     let numberOfEnemies = Math.round((Math.random() * 3) + 2);
     //console.log("------ coords ", x, y, finalX, finalY);
     //this.svEnemies = [enemy0, , enemy2, ..., enemyN] => svEnemies.length === 5
@@ -469,7 +453,7 @@ export class Game {
       enemy.moveAnimationId = setTimeout(() => {
         enemy.moveToPoint(
           [final[0], final[1]],
-          animationSegs,
+          1,
           this.svEnemiesPaths[index][2][0],
           this.svEnemiesPaths[index][2][1])
       },
@@ -517,8 +501,10 @@ export class Game {
     this.createExplosion(player);
     this.removePlayer();
     this.cancelAllEnemiesMovement();
-    this.bonus.cancelAnimation();
-    this.bonus.resetPosition();
+    if(this.bonus) {
+      this.bonus.cancelAnimation();
+      this.bonus.resetPosition();
+    }
     player.loseLive();
 
     if (player.lives > 0) {
@@ -537,14 +523,7 @@ export class Game {
         player.collisionable = true;
       }, 5000);
     } else {
-      setTimeout(() => {
-        alert("¡¡¡Game Over!!!");
-        player.resetLives();
-        this.pointsCounter.reset();
-        document.getElementById("menu").style.display = "block";
-        document.getElementById("background").style.display = "none";
-        this.reset();
-      }, 1000);
+      setTimeout(() => { this.gameOver(); }, 1000);
     }
   }
   stopAllPlayerMovements() {
@@ -554,6 +533,18 @@ export class Game {
   //#endregion
   /************************************************************************************************************/
   /*********************************************** GAME STATE *************************************************/
+  gameIsInMenu() {
+    return document.getElementById("menu").style.display === "block";
+  }
+  gameOver() {
+    this.audio.changeMusicByGameState();
+    alert("¡¡¡Game Over!!!");
+    player.resetLives();
+    this.pointsCounter.reset();
+    document.getElementById("menu").style.display = "block";
+    document.getElementById("background").style.display = "none";
+    this.reset();
+  }
   /**
    * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
    */
@@ -565,8 +556,10 @@ export class Game {
         this.siEnemies[i][j].teleportToInitialPosition();
       }
     }
-    this.bonus.cancelAnimation();
-    this.bonus.resetPosition();
+    if(this.bonus) {
+      this.bonus.cancelAnimation();
+      this.bonus.resetPosition();
+    }
   }
   startScrollVertical() {
     /*
@@ -636,10 +629,11 @@ export class Game {
   start() {
     player.responsive = true;
     player.collisionable = true;
-    game.createEnemies();
-    game.moveSpaceInvadersEnemies();
-    game.createBonusEnemy();
-    //this.startScrollVertical();
+    this.audio.changeMusicByGameState();
+    //game.createEnemies();
+    //game.moveSpaceInvadersEnemies();
+    //game.createBonusEnemy();
+    this.startScrollVertical();
     //this.DELETEME_instaScrollVertical();
   }
 }

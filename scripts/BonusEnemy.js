@@ -24,7 +24,7 @@ export class BonusEnemy extends CollisionableObject {
     //console.log("in move")
     if(this.x < game.width){
       //console.log("if move done")
-      this.x += game.enemyFrameStep;
+      this.x += game.siEnemyFrameStep;
       this.animationFrameId = window.requestAnimationFrame(() => {this.move();});
     } else {
       this.resetPosition();
