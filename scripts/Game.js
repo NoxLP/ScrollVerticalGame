@@ -107,7 +107,7 @@ export class Game {
     this.svEnemiesPool = new ObjectPool();
     this.enemiesBulletsPool = new ObjectPool();
 
-    this.audio = new Sounds(0.5);
+    this.audio = new Sounds(0.45);
 
     this.messagePopup = document.createElement("p");
     this.messagePopup.classList.add("levelClearedPopup");
@@ -394,7 +394,8 @@ export class Game {
       clearTimeout(this.svEnemiesMoveTimerId);
       this.svEnemiesPool.showingObjects.forEach(x => {
         clearTimeout(x.moveAnimationId);
-        clearTimeout(x.shootingAnimationId);
+        if(x.myMovementTween)
+          x.myMovementTween.stop();
         x.elem.style.top = getComputedStyle(x.elem).top;
         x.elem.style.left = getComputedStyle(x.elem).left;
       });
@@ -540,6 +541,7 @@ export class Game {
   /************************************************************************************************************/
   /*********************************************** GAME STATE *************************************************/
   gameOver() {
+    this.cancelAllEnemiesMovement();
     this.audio.changeMusicByGameState();
     this.showMessage("Game Over");
     this.audio.playAudio("assets/music/sounds/gameOver.mp3");

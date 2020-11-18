@@ -7,8 +7,8 @@ export const normalizeVector = arr => {
   return [arr[0] / length, arr[1] / length];
 }
 
-export const menu = new Menu();
 export const game = new Game(1);
+export const menu = new Menu();
 export const player = new Player();
 console.log(game);
 
@@ -79,4 +79,5 @@ document.addEventListener("keyup", e => {
 
 window.onload = () => {
   document.getElementById("startButton").onclick = () => { menu.goToGame(); };
+  document.getElementById("soundB").onclick = () => { menu.activateSounds(); };
 };

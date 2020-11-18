@@ -12,11 +12,14 @@ export class Menu {
     ];
     this._gifsTimerId;
     this.gifsAnimation = true;
+    this._lastAnimation;
+  }
+  activateSounds() {
+    game.audio.changeMusicByGameState();
     if(this.gifsAnimation) {
       this._animateGifs();
       this._gifsTimerId = setInterval(() => { this._animateGifs(); }, 10000);
     }
-    this._lastAnimation;
   }
   goToMenu() {
     this._menuSection.style.display = "block";
@@ -38,10 +41,10 @@ export class Menu {
   }
   _animateGifs() {
     let animation;
-    while((animation = Math.round(Math.random() * 3)) === this._lastAnimation) ;
-    console.log("animating gifs", animation)
+    while((animation = Math.round(Math.random() * 2)) === this._lastAnimation) ;
+    console.log(animation)
+    setTimeout(() => { game.audio.playAudio(`assets/music/sounds/alien-talk-${animation}.mp3`, 0.15); }, 1500);
     for (let i = 0; i < this._gifs.length; i++) {
-      this._gifs[i].style.transition = "";
       this._gifs[i].classList.remove(`menuGifsFinal${this._lastAnimation}`);
       setTimeout(() => { 
         this._gifs[i].classList.add(`menuGifsFinal${animation}`); }, 1500 * i);

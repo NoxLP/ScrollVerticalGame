@@ -7,26 +7,6 @@ body {
   margin: 0 auto;
   background-color: black;
 }
-button {
-  position: absolute;
-  height: 80px;
-  width: 200px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(rgba(47, 47, 235, 0.863), rgb(130, 189, 238));
-  border-radius: 40px;
-  font: bold 50px 'pointsFont';
-  color: rgb(18, 228, 228);
-  text-shadow: 5px 5px black;
-  border: none;
-  box-shadow: 2px 2px rgba(47, 47, 235, 0.863);
-  outline: none;
-}
-button:hover {
-  text-shadow: 2px 2px black;
-  border: 1px solid white;
-}
 
 #background {
   position: relative;
@@ -47,21 +27,6 @@ button:hover {
   bottom: 5200px;
   z-index: 0;
 }
-#menu {
-  position: relative;
-  background-image: url("../assets/images/background/menuBackground.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  overflow: hidden;
-}
-#menuVideo {
-  background-color: transparent;
-}
 #game {
   position: relative;
   overflow: hidden;
@@ -69,11 +34,6 @@ button:hover {
 #player {
   position: absolute;
   filter: brightness(1.2) contrast(125%);
-}
-#gifsContainer {
-  position: absolute;
-  width: 1900px;
-  height: 970px;
 }
 
 .enemy {
@@ -117,42 +77,4 @@ button:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -100%);
-}
-.menuGifs {
-  position: absolute;
-  display: inline-block;
-  top: 0px;
-  left: -600px;
-  width: 50px;
-  height: 50px;
-}
-.menuGifsFinal0 {
-  top: 600px;
-  left: 2000px;
-  height: 480px;
-  width: 500px;
-  transition: top 6s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
-    left 6s cubic-bezier(0.37, 0, 0.63, 1),
-    height 5s linear,
-    width 5s linear;
-}
-.menuGifsFinal1 {
-  top: 1900px;
-  left: 500px;
-  height: 480px;
-  width: 500px;
-  transition: top 8s linear, 
-    left 8s cubic-bezier(0.33, 1, 0.68, 1),
-    height 3s linear,
-    width 3s linear;
-}
-.menuGifsFinal2 {
-  top: 950px;
-  left: 1300px;
-  height: 480px;
-  width: 500px;
-  transition: top 7s cubic-bezier(0.36, 0, 0.66, -0.56), 
-    left 7s linear,
-    height 6s linear,
-    width 6s linear;
 }

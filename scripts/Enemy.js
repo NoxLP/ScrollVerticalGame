@@ -26,7 +26,6 @@ export class Enemy extends CollisionableObject {
     this.lastMove;
     //this.moveAnimationId = null;
     this.myMovementTween;
-    this.shootingAnimationId;
   }
   get type() { return this._type; }
   set type(value) {
