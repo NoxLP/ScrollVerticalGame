@@ -1,3 +1,4 @@
+import { Menu } from "./Menu.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
@@ -6,6 +7,7 @@ export const normalizeVector = arr => {
   return [arr[0] / length, arr[1] / length];
 }
 
+export const menu = new Menu();
 export const game = new Game(1);
 export const player = new Player();
 console.log(game);
@@ -76,10 +78,5 @@ document.addEventListener("keyup", e => {
 });
 
 window.onload = () => {
-  document.getElementById("startButton").onclick = () => {
-    document.getElementById("menu").style.display = "none";
-    document.getElementById("background").style.display = "block";
-    player.responsive = false;
-    setTimeout(() => { game.start(); }, 300);
-  };
+  document.getElementById("startButton").onclick = () => { menu.goToGame(); };
 };

@@ -1,4 +1,4 @@
-import { game } from "./main.js";
+import { game, menu } from "./main.js";
 
 export class Sounds {
   constructor(volume) {
@@ -24,7 +24,7 @@ export class Sounds {
     this.songsAudio.addEventListener("ended", () => { this.changeMusicByGameState(); });
   }
   changeMusicByGameState() {
-    this.songsAudio.src = game.gameIsInMenu() ? 
+    this.songsAudio.src = menu.gameIsInMenu() ? 
       this.menuPlayList[(this.currentSong++) % this.menuPlayList.length] :
       this.gamePlayList[(this.currentSong++) % this.gamePlayList.length];
     this.songsAudio.load();

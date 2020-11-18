@@ -1,6 +1,6 @@
 import { Enemy } from "./Enemy.js";
 import { BonusEnemy } from "./BonusEnemy.js";
-import { game, player } from "./main.js";
+import { game, player, menu } from "./main.js";
 import { PointsCounter } from "./PointsCounter.js";
 import { ObjectPool } from "./ObjectPool.js";
 import { Sounds } from "./Sounds.js";
@@ -539,9 +539,6 @@ export class Game {
   //#endregion
   /************************************************************************************************************/
   /*********************************************** GAME STATE *************************************************/
-  gameIsInMenu() {
-    return document.getElementById("menu").style.display === "block";
-  }
   gameOver() {
     this.audio.changeMusicByGameState();
     this.showMessage("Game Over");
@@ -550,10 +547,7 @@ export class Game {
     this.pointsCounter.reset();
     this.reset();
     
-    setTimeout(() => {
-      document.getElementById("menu").style.display = "block";
-      document.getElementById("background").style.display = "none";
-    },3000);
+    setTimeout(() => { menu.goToMenu(); }, 2000);
   }
   /**
    * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.

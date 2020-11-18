@@ -2,7 +2,6 @@
   font-family: 'pointsFont';
   src: url('../assets/fonts/digital_counter_7.ttf');
 }
-
 body {
   padding: 0;
   margin: 0 auto;
@@ -58,6 +57,7 @@ button:hover {
   width: 100vw;
   height: 100vh;
   margin: 0;
+  overflow: hidden;
 }
 #menuVideo {
   background-color: transparent;
@@ -69,6 +69,11 @@ button:hover {
 #player {
   position: absolute;
   filter: brightness(1.2) contrast(125%);
+}
+#gifsContainer {
+  position: absolute;
+  width: 1900px;
+  height: 970px;
 }
 
 .enemy {
@@ -112,4 +117,42 @@ button:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -100%);
+}
+.menuGifs {
+  position: absolute;
+  display: inline-block;
+  top: 0px;
+  left: -600px;
+  width: 50px;
+  height: 50px;
+}
+.menuGifsFinal0 {
+  top: 600px;
+  left: 2000px;
+  height: 480px;
+  width: 500px;
+  transition: top 6s cubic-bezier(0.68, -0.6, 0.32, 1.6), 
+    left 6s cubic-bezier(0.37, 0, 0.63, 1),
+    height 5s linear,
+    width 5s linear;
+}
+.menuGifsFinal1 {
+  top: 1900px;
+  left: 500px;
+  height: 480px;
+  width: 500px;
+  transition: top 8s linear, 
+    left 8s cubic-bezier(0.33, 1, 0.68, 1),
+    height 3s linear,
+    width 3s linear;
+}
+.menuGifsFinal2 {
+  top: 950px;
+  left: 1300px;
+  height: 480px;
+  width: 500px;
+  transition: top 7s cubic-bezier(0.36, 0, 0.66, -0.56), 
+    left 7s linear,
+    height 6s linear,
+    width 6s linear;
 }
