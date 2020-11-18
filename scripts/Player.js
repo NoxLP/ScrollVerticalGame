@@ -28,6 +28,8 @@ export class Player extends CollisionableObject {
     live.style.filter = "brightness(0.3)";
     live.style.transition = "filter 1s ease-out";
     this._lives--;
+    this.x = game.playerInitialCoords[0];
+    this.y = game.playerInitialCoords[1];
   }
   resetLives() {
     this._lives = 3;

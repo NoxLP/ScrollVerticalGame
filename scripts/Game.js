@@ -18,6 +18,7 @@ export class Game {
 
     this.background = document.getElementById("movingBackg");
     this.backgroundBottom = 5200;
+    this.backgroundMoveTimerId;
 
     this.canvas = document.getElementById("game");
     this.width = 1900;
@@ -341,6 +342,7 @@ export class Game {
     REPITE hasta que un enemigo de la fila inferior colisione con player
     */
 
+    console.log("---- MOVE SI");
     //While la fila de abajo no colisione con el jugador
     this.spaceInvadersEnemiesShootsTimerId = setInterval(() => {
       /*
@@ -468,7 +470,9 @@ export class Game {
       );
     }
     //enemy.elem.classList.add("enemiesFinal");
-    this.svEnemiesMoveTimerId = setTimeout(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
+    if(!this.svEnemiesMoveTimerId) {
+      this.svEnemiesMoveTimerId = setInterval(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
+    }
   }
   //#endregion
   /************************************************************************************************************/
@@ -519,8 +523,8 @@ export class Game {
 
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
-        this.reset();
         if (this.gameState === "spaceInvaders") {
+          this.siReset();
           this.moveSpaceInvadersEnemies();
           this.moveBonusEnemy();
         } else {
@@ -528,6 +532,7 @@ export class Game {
         }
         player.responsive = true;
         player.collisionable = true;
+        player.elem.style.display = "inline";
       }, 5000);
     } else {
       setTimeout(() => { this.gameOver(); }, 1000);
@@ -547,14 +552,14 @@ export class Game {
     this.audio.playAudio("assets/music/sounds/gameOver.mp3");
     player.resetLives();
     this.pointsCounter.reset();
-    this.reset();
+    this.siReset();
     
     setTimeout(() => { menu.goToMenu(); }, 2000);
   }
   /**
    * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
    */
-  reset() {
+  siReset() {
     player.teleportToInitialPosition();
     //All enemies to initial position
     for (let i = 0; i < this.siEnemies.length; i++) {
@@ -628,16 +633,23 @@ export class Game {
   moveBackgroundDown() {
     this.backgroundBottom -= 0.9;
     this.background.style.bottom = `${this.backgroundBottom}px`
-    window.requestAnimationFrame(() => { this.moveBackgroundDown(); });
+    this.backgroundMoveTimerId = window.requestAnimationFrame(() => { this.moveBackgroundDown(); });
+  }
+  stopBackground() {
+    cancelAnimationFrame(this.backgroundMoveTimerId);
+    this.backgroundBottom = 5200;
+    this.background.style.bottom = `${this.backgroundBottom}px`
   }
   DELETEME_instaScrollVertical() {
     this.gameState = "SV";
     this.stopAllPlayerMovements();
     player.responsive = true;
     this.moveBackgroundDown();
-    this.startScrollVerticalEnemiesMovements();
+    this.scrollVerticalEnemiesMovements();
   }
   start() {
+    this.stopBackground();
+    this.gameState = "spaceInvaders";
     player.responsive = true;
     player.collisionable = true;
     this.audio.changeMusicByGameState();

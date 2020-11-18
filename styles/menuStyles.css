@@ -1,3 +1,7 @@
+@font-face {
+  font-family: 'titleFont';
+  src: url('../assets/fonts/MachineStd-Bold.otf');
+}
 #menu {
   position: relative;
   background-image: url("../assets/images/background/menuBackground.jpg");
@@ -9,6 +13,17 @@
   height: 100vh;
   margin: 0;
   overflow: hidden;
+}
+#menu h1 {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-text-stroke: 2px gray;
+  font: bold 180px 'titleFont';
+  color: rgb(71, 224, 224);
+  text-shadow: 8px 8px rgba(47, 47, 235, 0.863);
+  text-align: center;
 }
 #startButton {
   position: absolute;
