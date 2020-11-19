@@ -39,7 +39,7 @@ document.addEventListener("keydown", function (e) {
         player.playerDirection[1] = 1;
       break;
     case "F10":
-      console.log("F10")
+      game.cheatToFinal();
       break;
   }
   if(!player.movementAnimationId)

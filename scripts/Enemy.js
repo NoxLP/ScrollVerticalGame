@@ -2,8 +2,6 @@ import { CollisionableObject } from "./base/CollisionableObject.js";
 import { EnemyBullet } from "./bullets/EnemyBullet.js";
 import { game, player, normalizeVector } from "./main.js";
 import { Tween } from "./tweens/Tween.js";
-//DELETEME
-import { easings } from "./tweens/easings.js";
 
 var lastId = -1;
 

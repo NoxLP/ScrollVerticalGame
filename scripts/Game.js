@@ -34,13 +34,13 @@ export class Game {
     this.bonus;
     this.bonusSize = [80, 100];
     this.bonusTimeout = 10000;
+    this.bonusPointsRange = [50, 450];
+
     this.enemiesSize = [
       [50, 50],
       [65, 65],
       [80, 80]
     ];
-    
-    this.bonusPointsRange = [50, 450];
     this.siEnemyFrameStep = 4;
     this.svEnemySpeed = 200;
     this.enemyBulletStep = 9;
@@ -108,6 +108,8 @@ export class Game {
     this.messagePopup.style.display = "none";
     this.messagePopup.style.zIndex = 100000;
     this.canvas.appendChild(this.messagePopup);
+
+    
   }
 
   get points() { return this._points; }
@@ -261,6 +263,9 @@ export class Game {
     this.bonus = new BonusEnemy();
     setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5));
   }
+  createFinalBoss() {
+
+  }
   //#endregion
   /************************************************************************************************************/
   /********************************************* ENEMIES MOVEMENT *********************************************/
@@ -377,6 +382,8 @@ export class Game {
    * Cancel movement of all enemies
    */
   cancelAllEnemiesMovement() {
+    this.bonus.cancelAnimation();
+    this.bonus.resetPosition();
     if (this.gameState === "spaceInvaders") {
       for (let i = 0; i < this.siEnemies.length; i++) {
         for (let j = 0; j < this.siEnemies[i].length; j++) {
@@ -650,5 +657,12 @@ export class Game {
     game.createBonusEnemy();
     //this.startScrollVertical();
     //this.DELETEME_instaScrollVertical();
+  }
+  /************************************************************************************************************/
+  /************************************************* CHEATS ***************************************************/
+  cheatToFinal() {
+    cancelAnimationFrame(this.backgroundMoveTimerId);
+    this.backgroundBottom = -18625;
+    this.background.style.bottom = `${this.backgroundBottom}px`
   }
 }
