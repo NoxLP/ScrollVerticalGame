@@ -39,18 +39,7 @@ export class Game {
       [65, 65],
       [80, 80]
     ];
-    /*
-    new Array(5) === [null, null, null, null, null]
-    for(i=0;i<length;i++)
-      array[i] = ...
     
-    this.enemies = [
-      [,,,,,,,],
-      [,,,,,,,],
-      ...,
-      [,,,,,,,]
-    ]
-    */
     this.bonusPointsRange = [50, 450];
     this.siEnemyFrameStep = 4;
     this.svEnemySpeed = 200;
@@ -398,6 +387,7 @@ export class Game {
       clearInterval(this.spaceInvadersEnemiesShootsTimerId);
     } else {
       clearTimeout(this.svEnemiesMoveTimerId);
+      this.svEnemiesMoveTimerId = null;
       this.svEnemiesPool.showingObjects.forEach(x => {
         clearTimeout(x.moveAnimationId);
         if(x.myMovementTween)
@@ -454,15 +444,13 @@ export class Game {
     let initial = this.svEnemiesPaths[index][0];
     let final = this.svEnemiesPaths[index][1];
     let shiptype = Math.round(Math.random() * 2);
-    //let animationSegs = Math.round((Math.random() * 4) + 4);
     let numberOfEnemies = Math.round((Math.random() * 3) + 2);
-    //console.log("------ coords ", x, y, finalX, finalY);
-    //this.svEnemies = [enemy0, , enemy2, ..., enemyN] => svEnemies.length === 5
+    
     for (let i = 0; i < numberOfEnemies; i++) {
       let enemy = this.svEnemiesPool.getNewObject(() => new Enemy(shiptype, initial[0], initial[1]), initial[0], initial[1]);
-      enemy.type = shiptype
+      enemy.type = shiptype;
       enemy.elem.classList.add("enemy");
-      //console.log(`------ enemy of type ${enemy.type} is in `, enemy.x, enemy.y);
+      
       enemy.moveAnimationId = setTimeout(() => {
         enemy.moveToPoint(
           [final[0], final[1]],
@@ -473,7 +461,7 @@ export class Game {
         1000 + (500 * i)
       );
     }
-    //enemy.elem.classList.add("enemiesFinal");
+    
     if(!this.svEnemiesMoveTimerId) {
       this.svEnemiesMoveTimerId = setInterval(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
     }

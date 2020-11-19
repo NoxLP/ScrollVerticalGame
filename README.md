@@ -11,8 +11,10 @@ A big thank you to these great people for sharing their work on the net so we(an
 
 ### Space ships and lasers graphics
 https://opengameart.org/content/space-ship-construction-kit
+
 https://opengameart.org/content/space-ship-mech-construction-kit-2
 
 ### Sounds and music
 https://jonathan-so.itch.io/
+
 https://goose.ninja/
