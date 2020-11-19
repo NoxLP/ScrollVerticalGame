@@ -100,8 +100,6 @@ export class Tween {
     this._tweenRunning = true;
     this._tweenPaused = false;
 
-    //TODO: shoots
-
     console.log("__TWEEN start", this)
     this._tick();
   }

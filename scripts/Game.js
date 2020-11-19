@@ -59,7 +59,11 @@ export class Game {
     this.siEnemiesPerRow = enemiesPerRow;
     this.svEnemiesMoveTimerId = null;
     this.svEnemiesPaths = [
-      [[this.width + 80, 0], [-80, this.height * 0.9], [easings.easeInOutSine, easings.easeInOutBack]],
+      [
+        [this.width + 80, 0], 
+        [-80, this.height * 0.9], 
+        [easings.easeInOutSine, easings.easeInOutBack]
+      ],
       [[-80, this.height * 0.2], [this.width + 80, this.height * 0.85], [easings.linear, easings.easeInOutBack]],
       [[this.width + 80, this.height * 0.2], [-80, this.height * 0.7], [easings.linear, easings.easeInOutBack]],
       [[-80, this.height * 0.7], [this.width + 80, this.height * 0.2], [easings.linear, easings.easeInOutBack]],

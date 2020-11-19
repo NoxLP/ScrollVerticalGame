@@ -56,6 +56,9 @@
   border: none;
   outline: none;
 }
+#soundB:hover {
+  filter: brightness(1.5);
+}
 #soundB img {
   height: 80px;
   width: 80px;

@@ -11,29 +11,24 @@ export class ObjectPool {
       obj.elem.style.display = "inline";
       obj.x = x;
       obj.y = y;
-      //console.log("// - pool NEW from hidden", obj, this)
       return obj;
     } else {
       let obj = objCreationCallback();
       this.showingObjects.push(obj);
-      //console.log("// - pool NEW ", obj, this)
       return obj;
     }
   }
+  storeObject(obj) {
+    let index = this.showingObjects.findIndex(x => x.id === obj.id);
+    this.showingObjects.splice(index, 1);
+    this._hideObject(obj);
+  }
   _hideObject(obj) {
     this.hiddenObjects.push(obj);
-    //obj.elem.style.top = getComputedStyle(obj.elem).top;
-    //obj.elem.style.left = getComputedStyle(obj.elem).left;
     obj.elem.style.display = "none";
     obj.elem.style.transition = "";
     obj.x = this.hiddenCoords[0];
     obj.y = this.hiddenCoords[1];
-  }
-  storeObject(obj) {
-    //console.log("// - STORED ", obj, this)
-    let index = this.showingObjects.findIndex(x => x.id === obj.id);
-    this.showingObjects.splice(index, 1);
-    this._hideObject(obj);
   }
   storeIfNotStored(obj) {
     let index;
