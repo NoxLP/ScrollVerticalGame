@@ -87,14 +87,16 @@ export class Tween {
     this._yDistance = this._finalPoint[1] - this._enemy.y;
     this._percentagePerStep = 1 / (game.svEnemySpeed * this._speedFactor);// / this._xDistance;
 
-    /*
-    shoots
-    number of shoots = 2
-    1 / (nSh + 1) => shootPercentage => 0.33333, 0.6666 
-    */
-    let percentagePerShoot = 1 / (this._numberOfShoots + 1);
-    for(let i = 1; i <= this._numberOfShoots; i++) {
-      this._shootPercentages.push(+(((percentagePerShoot * i) - (Math.random() * this._percentagePerStep * 100)).toFixed(4)));
+    if(this._numberOfShoots) {
+      /*
+      shoots
+      number of shoots = 2
+      1 / (nSh + 1) => shootPercentage => 0.33333, 0.6666 
+      */
+      let percentagePerShoot = 1 / (this._numberOfShoots + 1);
+      for(let i = 1; i <= this._numberOfShoots; i++) {
+        this._shootPercentages.push(+(((percentagePerShoot * i) - (Math.random() * this._percentagePerStep * 100)).toFixed(4)));
+      }
     }
 
     this._tweenRunning = true;
@@ -132,18 +134,18 @@ export class Tween {
     if (this._tweenRunning && !this._tweenPaused) {
       let currentDistanceToFinal = this._distanceToFinalPoint();
       
-      if (currentDistanceToFinal[0] > this._percentagePerStep && currentDistanceToFinal[1] > this._percentagePerStep) {
+      if (currentDistanceToFinal[0] > this._percentagePerStep || 
+          currentDistanceToFinal[1] > this._percentagePerStep) {
         this._xPercentage += this._percentagePerStep;
         this._yPercentage += this._percentagePerStep;
         this._enemy.x = this._initialPoint[0] + (this._leftEasing(this._xPercentage) * this._xDistance);
         this._enemy.y = this._initialPoint[1] + (this._topEasing(this._yPercentage) * this._yDistance);
-        //console.log("________________TWEEN step", this._enemy.x, this._enemy.y)
-
-        /*
-        |   shoot   |
-        */
-        if(this._enemy.x > 0 && this._enemy.x < game.width && this._enemy.y > 0 && this._enemy.y < game.height &&
-          this._shootPercentages.some(perc => this._xPercentage > perc - (this._percentagePerStep * 0.5) && this._xPercentage < perc + (this._percentagePerStep * 0.5)))
+        
+        if(this._numberOfShoots &&
+          this._enemy.x > 0 && this._enemy.x < game.width && 
+          this._enemy.y > 0 && this._enemy.y < game.height &&
+          this._shootPercentages.some(perc => this._xPercentage > perc - (this._percentagePerStep * 0.5) && 
+          this._xPercentage < perc + (this._percentagePerStep * 0.5)))
           this._enemy.shoot();
 
         if (this._tickCallback)
@@ -152,13 +154,15 @@ export class Tween {
         this._frameRequestId = window.requestAnimationFrame(() => { this._tick(); });
       } else {
         this.stop();
+        this._frameRequestId = window.requestAnimationFrame(() => { this._tick(); });
       }
     } else if (this._tweenPaused) {
       this._frameRequestId = window.requestAnimationFrame(() => { this._tick(); });
     } else if (!this._tweenRunning) {
       this.reset();
-      if (this._finalCallback && !this.stopWithoutCallback)
+      if (this._finalCallback && !this.stopWithoutCallback) {
         this._finalCallback();
+      }
     }
   }
 }

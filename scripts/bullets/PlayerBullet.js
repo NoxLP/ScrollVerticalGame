@@ -51,23 +51,28 @@ export class PlayerBullet extends CollisionableObject {
       window.requestAnimationFrame(this.move)
     */
     if(this.y + this.height > 0) {
-      //console.log("Bala subiendo");
       this.y -= game.bulletStep;
-      var collidingEnemy = game.gameState === "spaceInvaders" ? this.isCollidingWithAnEnemy() : this.isCollidingWithASVEnemy();
-      
-      if(collidingEnemy) {
-        console.log("COLLIDES WITH", collidingEnemy.row, collidingEnemy.column)
-        //console.log("collidingEnemy")
-        game.canvas.removeChild(this.elem);
-        game.removeEnemy(collidingEnemy);
-      } else if(this.collideWith(game.bonus)) {
-        game.removeBonusEnemy();
-        game.canvas.removeChild(this.elem);
+      if(!game.finalBoss || game.finalBoss.elem.style.display === "none") {
+        var collidingEnemy = game.gameState === "spaceInvaders" ? this.isCollidingWithAnEnemy() : this.isCollidingWithASVEnemy();
+        
+        if(collidingEnemy) {
+          game.canvas.removeChild(this.elem);
+          game.removeEnemy(collidingEnemy);
+        } else if(this.collideWith(game.bonus)) {
+          game.removeBonusEnemy();
+          game.canvas.removeChild(this.elem);
+        } else {
+          window.requestAnimationFrame(() => { this.move(); });
+        }
       } else {
-        window.requestAnimationFrame(() => { this.move(); });
+        if(this.collideWith(game.finalBoss)) {
+          game.finalBoss.bossHitted(this);
+          game.canvas.removeChild(this.elem);
+        } else {
+          window.requestAnimationFrame(() => { this.move(); });
+        }
       }
     } else {
-      console.log("REMOVE BULLET")
       game.canvas.removeChild(this.elem);
     }
   }

@@ -5,6 +5,7 @@ import { PointsCounter } from "./PointsCounter.js";
 import { ObjectPool } from "./ObjectPool.js";
 import { Sounds } from "./Sounds.js";
 import { easings } from "./tweens/easings.js";
+import { Boss } from "./Boss.js";
 
 /**
  * Class for control them all
@@ -31,6 +32,15 @@ export class Game {
     this.canvasRowHeight = this.height / this.canvasRows;
     this.canvasColumnWidth = this.width / this.canvasColumns;
     
+    this.finalBoss;
+    this.bossPaths = [
+      [
+        [30, 30], [easings.easeOutSine, easings.linear]
+      ],
+      [[1000, 30], [easings.easeOutSine, easings.linear]]
+    ];
+    this.bossAnimationTimerId;
+
     this.bonus;
     this.bonusSize = [80, 100];
     this.bonusTimeout = 10000;
@@ -108,8 +118,6 @@ export class Game {
     this.messagePopup.style.display = "none";
     this.messagePopup.style.zIndex = 100000;
     this.canvas.appendChild(this.messagePopup);
-
-    
   }
 
   get points() { return this._points; }
@@ -382,8 +390,15 @@ export class Game {
    * Cancel movement of all enemies
    */
   cancelAllEnemiesMovement() {
-    this.bonus.cancelAnimation();
-    this.bonus.resetPosition();
+    if(this.bonus) {
+      this.bonus.cancelAnimation();
+      this.bonus.resetPosition();
+    }
+    if(this.finalBoss.elem.style.display !== "none") {
+      this.finalBoss.myMovementTween.stop();
+      clearTimeout(this.bossAnimationTimerId);
+      this.bossAnimationTimerId = null;
+    }
     if (this.gameState === "spaceInvaders") {
       for (let i = 0; i < this.siEnemies.length; i++) {
         for (let j = 0; j < this.siEnemies[i].length; j++) {
@@ -473,6 +488,35 @@ export class Game {
       this.svEnemiesMoveTimerId = setInterval(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
     }
   }
+  bossMovements(index) {
+    /*
+    Sigue un patrón de movimientos => Hacer paths en this.bossPaths(array) hasta el final, y repetir
+      Bucle:
+      Hacer un path
+      Esperar 3 segundos
+    */
+
+    /*
+    this.bossPaths = [
+      [
+        [30, 30], 
+        [easings.easeOutSine, easings.linear]
+      ]
+    ];
+    */
+
+    if(index === this.bossPaths.length)
+      index = 0;
+    console.log("/////////// index ", index)
+    this.finalBoss.moveToPoint(
+      this.bossPaths[index][0],
+      this.bossPaths[index][1][0],
+      this.bossPaths[index][1][1]
+    )
+    index++;
+
+    this.bossAnimationTimerId = setTimeout(() => { this.bossMovements(index); }, 3000);
+  }
   //#endregion
   /************************************************************************************************************/
   /************************************************* HELPERS **************************************************/
@@ -484,6 +528,10 @@ export class Game {
   enemyCollidesWithPlayer(enemy) {
     this.removeEnemy(enemy, false);
     this.playerHitted();
+  }
+  bossCollideWithPlayer() {
+    this.playerHitted();
+    this.finalBoss.bossHitted();
   }
   /**
    * The player gets hitted by an object
@@ -522,7 +570,9 @@ export class Game {
 
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
-        if (this.gameState === "spaceInvaders") {
+        if(this.finalBoss.elem.display !== "none") {
+          this.bossMovements(0);
+        } else if (this.gameState === "spaceInvaders") {
           this.siReset();
           this.moveSpaceInvadersEnemies();
           this.moveBonusEnemy();
@@ -553,7 +603,11 @@ export class Game {
     this.pointsCounter.reset();
     this.siReset();
     
-    setTimeout(() => { menu.goToMenu(); }, 2000);
+    setTimeout(() => { 
+      if(this.finalBoss.elem.style.display !== "none")
+        this.finalBoss.hide();
+      menu.goToMenu(); 
+    }, 2000);
   }
   /**
    * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
@@ -615,8 +669,6 @@ export class Game {
     volver al menú.
     */
     this.cancelAllEnemiesMovement();
-    this.bonus.cancelAnimation();
-    this.bonus.resetPosition();
     this.stopAllPlayerMovements();
     player.responsive = false;
 
@@ -624,10 +676,11 @@ export class Game {
       this.showMessage(`You Won Crack. Your points are: ${this.pointsCounter.showedPoints}`);
       player.resetLives();
       this.pointsCounter.reset();
-      document.getElementById("menu").style.display = "block";
-      document.getElementById("background").style.display = "none";
-      this.reset();
-    }, 2000);
+      setTimeout(() => {
+        document.getElementById("menu").style.display = "block";
+        document.getElementById("background").style.display = "none";
+      }, 3000);
+    }, 1000);
   }
   moveBackgroundDown() {
     this.backgroundBottom -= 0.9;
@@ -644,7 +697,7 @@ export class Game {
     this.stopAllPlayerMovements();
     player.responsive = true;
     this.moveBackgroundDown();
-    this.scrollVerticalEnemiesMovements();
+    //this.scrollVerticalEnemiesMovements();
   }
   start() {
     this.stopBackground();
@@ -664,5 +717,7 @@ export class Game {
     cancelAnimationFrame(this.backgroundMoveTimerId);
     this.backgroundBottom = -18625;
     this.background.style.bottom = `${this.backgroundBottom}px`
+    this.finalBoss = new Boss();
+    this.finalBoss.enterGame();
   }
 }

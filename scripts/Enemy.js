@@ -151,7 +151,8 @@ export class Enemy extends CollisionableObject {
       topEasing, 
       leftEasing, 
       checkIfCollideWithPlayerEachFrame, 
-      () => { game.svEnemiesPool.storeObject(this); });
+      () => { game.svEnemiesPool.storeObject(this); }
+    );
     
     this.myMovementTween.start();
   }
