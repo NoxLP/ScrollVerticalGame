@@ -589,6 +589,7 @@ export class Game {
         this.finalBoss.hide();
 
       player.resetLives();
+      this.points = 0;
       this.pointsCounter.reset();
       this.siReset();
       menu.goToMenu();
