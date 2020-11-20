@@ -394,7 +394,7 @@ export class Game {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
-    if(this.finalBoss.elem.style.display !== "none") {
+    if(this.finalBoss && this.finalBoss.elem.style.display !== "none") {
       this.finalBoss.myMovementTween.stop();
       clearTimeout(this.bossAnimationTimerId);
       this.bossAnimationTimerId = null;
@@ -570,7 +570,7 @@ export class Game {
 
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
-        if(this.finalBoss.elem.display !== "none") {
+        if(this.finalBoss && this.finalBoss.elem.display !== "none") {
           this.bossMovements(0);
         } else if (this.gameState === "spaceInvaders") {
           this.siReset();
@@ -714,6 +714,7 @@ export class Game {
   /************************************************************************************************************/
   /************************************************* CHEATS ***************************************************/
   cheatToFinal() {
+    this.cancelAllEnemiesMovement();
     cancelAnimationFrame(this.backgroundMoveTimerId);
     this.backgroundBottom = -18625;
     this.background.style.bottom = `${this.backgroundBottom}px`

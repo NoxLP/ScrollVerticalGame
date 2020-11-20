@@ -13,7 +13,7 @@ export class Boss extends CollisionableObject {
     super(elem, (game.width / 2) - 400, -512, 650, 500);
 
     this.speed = 0.6;
-    this._health = 5;
+    this._health = 20;
     this.myMovementTween;
     this._currentPattern = 0;
     this._shootPatterns = [
