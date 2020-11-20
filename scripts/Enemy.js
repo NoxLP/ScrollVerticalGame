@@ -208,8 +208,10 @@ export class Enemy extends CollisionableObject {
       switch (this.type) {
         case 0:
           direction = normalizeVector([player.x - this.x, player.y - this.y]);
-          console.log("direction", direction)
-          bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), bulletInitialCoords[0], bulletInitialCoords[1]);
+          bullet = game.enemiesBulletsPool.getNewObject(() => 
+            new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), 
+            bulletInitialCoords[0], 
+            bulletInitialCoords[1]);
           bullet.move(direction);
           break;
         case 1:
