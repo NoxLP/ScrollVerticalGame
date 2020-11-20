@@ -31,7 +31,7 @@ export class Game {
     this.canvasColumns = enemiesPerRow + 3;
     this.canvasRowHeight = this.height / this.canvasRows;
     this.canvasColumnWidth = this.width / this.canvasColumns;
-    
+
     this.finalBoss;
     this.bossPaths = [
       [
@@ -59,8 +59,8 @@ export class Game {
     this.svEnemiesMoveTimerId = null;
     this.svEnemiesPaths = [
       [
-        [this.width + 80, 0], 
-        [-80, this.height * 0.9], 
+        [this.width + 80, 0],
+        [-80, this.height * 0.9],
         [easings.easeInOutSine, easings.easeInOutBack]
       ],
       [[-80, this.height * 0.2], [this.width + 80, this.height * 0.85], [easings.linear, easings.easeInOutBack]],
@@ -111,7 +111,7 @@ export class Game {
     this.svEnemiesPool = new ObjectPool();
     this.enemiesBulletsPool = new ObjectPool();
 
-    this.audio = new Sounds(0.45);
+    this.audio = new Sounds(0.3);
 
     this.messagePopup = document.createElement("p");
     this.messagePopup.classList.add("levelClearedPopup");
@@ -145,7 +145,7 @@ export class Game {
       clearTimeout(enemy.moveAnimationId);
       this.createExplosion(enemy);
 
-      if(givePoints)
+      if (givePoints)
         this.points += (enemy.type + 1) * 100;
 
       if (this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
@@ -290,33 +290,33 @@ export class Game {
   getYOfCanvasRow(row) { return this.canvasRowHeight * (row + 0.5); }
   leftColumnEnemyIsInCanvasLeftColumn() {
     var mostLeftColumnWithEnemyAlive;
-    for(let j = 0; j < this.siEnemiesPerRow; j++) {
-      for(let i = 0; i < this.siEnemies.length; i++) {
+    for (let j = 0; j < this.siEnemiesPerRow; j++) {
+      for (let i = 0; i < this.siEnemies.length; i++) {
         mostLeftColumnWithEnemyAlive = this.siEnemies[i][j];
-        if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+        if (mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
           break;
         }
       }
-      if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+      if (mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
         break;
       }
     }
 
-    if(!mostLeftColumnWithEnemyAlive)
+    if (!mostLeftColumnWithEnemyAlive)
       return false;
 
     return mostLeftColumnWithEnemyAlive.x > 0 && mostLeftColumnWithEnemyAlive.x < this.canvasColumnWidth;
   }
   rightColumnEnemyIsInCanvasRightColumn() {
     let mostLeftColumnWithEnemyAlive;
-    for(let j = this.siEnemiesPerRow - 1; j >= 0; j--) {
-      for(let i = 0; i < this.siEnemies.length; i++) {
+    for (let j = this.siEnemiesPerRow - 1; j >= 0; j--) {
+      for (let i = 0; i < this.siEnemies.length; i++) {
         mostLeftColumnWithEnemyAlive = this.siEnemies[i][j];
-        if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+        if (mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
           break;
         }
       }
-      if(mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
+      if (mostLeftColumnWithEnemyAlive.elem.style.display !== "none") {
         break;
       }
     }
@@ -324,7 +324,7 @@ export class Game {
     j = 3, i = 0 => ...
     j = 3, i = 1 => ...
     */
-    if(!mostLeftColumnWithEnemyAlive)
+    if (!mostLeftColumnWithEnemyAlive)
       return false;
 
     return mostLeftColumnWithEnemyAlive.x > this.canvasColumnWidth * (this.canvasColumns - 1) &&
@@ -368,7 +368,7 @@ export class Game {
           continue;
         }
       }
-      if(lastEnemy)
+      if (lastEnemy)
         lastEnemy.shoot();
     }, 1500);
 
@@ -390,11 +390,11 @@ export class Game {
    * Cancel movement of all enemies
    */
   cancelAllEnemiesMovement() {
-    if(this.bonus) {
+    if (this.bonus) {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
-    if(this.finalBoss && this.finalBoss.elem.style.display !== "none") {
+    if (this.finalBoss && this.finalBoss.elem.style.display !== "none") {
       this.finalBoss.myMovementTween.stop();
       clearTimeout(this.bossAnimationTimerId);
       this.bossAnimationTimerId = null;
@@ -412,7 +412,7 @@ export class Game {
       this.svEnemiesMoveTimerId = null;
       this.svEnemiesPool.showingObjects.forEach(x => {
         clearTimeout(x.moveAnimationId);
-        if(x.myMovementTween)
+        if (x.myMovementTween)
           x.myMovementTween.stop();
         x.elem.style.top = getComputedStyle(x.elem).top;
         x.elem.style.left = getComputedStyle(x.elem).left;
@@ -467,12 +467,12 @@ export class Game {
     let final = this.svEnemiesPaths[index][1];
     let shiptype = Math.round(Math.random() * 2);
     let numberOfEnemies = Math.round((Math.random() * 3) + 2);
-    
+
     for (let i = 0; i < numberOfEnemies; i++) {
       let enemy = this.svEnemiesPool.getNewObject(() => new Enemy(shiptype, initial[0], initial[1]), initial[0], initial[1]);
       enemy.type = shiptype;
       enemy.elem.classList.add("enemy");
-      
+
       enemy.moveAnimationId = setTimeout(() => {
         enemy.moveToPoint(
           [final[0], final[1]],
@@ -483,8 +483,8 @@ export class Game {
         1000 + (500 * i)
       );
     }
-    
-    if(!this.svEnemiesMoveTimerId) {
+
+    if (!this.svEnemiesMoveTimerId) {
       this.svEnemiesMoveTimerId = setInterval(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
     }
   }
@@ -505,7 +505,7 @@ export class Game {
     ];
     */
 
-    if(index === this.bossPaths.length)
+    if (index === this.bossPaths.length)
       index = 0;
     console.log("/////////// index ", index)
     this.finalBoss.moveToPoint(
@@ -559,18 +559,18 @@ export class Game {
     this.createExplosion(player);
     this.removePlayer();
     this.cancelAllEnemiesMovement();
-    if(this.bonus) {
+    if (this.bonus) {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
     player.loseLive();
 
     if (player.lives > 0) {
-      setTimeout(() => {this.showMessage("You lost a life"); }, 500);
+      setTimeout(() => { this.showMessage("You lost a life"); }, 500);
 
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
-        if(this.finalBoss && this.finalBoss.elem.display !== "none") {
+        if (this.finalBoss && this.finalBoss.elem.display !== "none") {
           this.bossMovements(0);
         } else if (this.gameState === "spaceInvaders") {
           this.siReset();
@@ -599,15 +599,15 @@ export class Game {
     this.audio.changeMusicByGameState();
     this.showMessage("Game Over");
     this.audio.playAudio("assets/music/sounds/gameOver.mp3");
-    player.resetLives();
-    this.pointsCounter.reset();
-    this.siReset();
-    
-    setTimeout(() => { 
-      if(this.finalBoss.elem.style.display !== "none")
+
+    setTimeout(() => {
+      if (this.finalBoss && this.finalBoss.elem.style.display !== "none")
         this.finalBoss.hide();
-      menu.goToMenu(); 
-    }, 2000);
+      player.resetLives();
+      this.pointsCounter.reset();
+      this.siReset();
+      menu.goToMenu();
+    }, 2500);
   }
   /**
    * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
@@ -620,7 +620,7 @@ export class Game {
         this.siEnemies[i][j].teleportToInitialPosition();
       }
     }
-    if(this.bonus) {
+    if (this.bonus) {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
@@ -628,7 +628,7 @@ export class Game {
   showMessage(message) {
     this.messagePopup.innerText = message;
     this.messagePopup.style.display = "inline-block";
-    setTimeout(() => {this.hideMessage()},3000);
+    setTimeout(() => { this.hideMessage() }, 3000);
   }
   hideMessage() {
     this.messagePopup.style.display = "none";
@@ -642,7 +642,7 @@ export class Game {
     player.responsive = false;
     this.stopAllPlayerMovements();
     this.showMessage("Stage 1 cleared. All engines ON");
-    
+
     for (let i = 0; i < this.siEnemies.length; i++) {
       for (let j = 0; j < this.siEnemies[i].length; j++) {
         let enemy = this.siEnemies[i][j];
@@ -705,7 +705,8 @@ export class Game {
     player.responsive = true;
     player.collisionable = true;
     this.audio.changeMusicByGameState();
-    game.createEnemies();
+    if(!this.siEnemies || this.siEnemies.length === 0)
+      game.createEnemies();
     game.moveSpaceInvadersEnemies();
     game.createBonusEnemy();
     //this.startScrollVertical();

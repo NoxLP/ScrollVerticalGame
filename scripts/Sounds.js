@@ -18,7 +18,7 @@ export class Sounds {
 
     this.songsAudio = document.getElementById("musicAudio");
     this.songsAudio.src = this.menuPlayList[0];
-    this.songsAudio.volume = this.volume - 0.3;
+    this.songsAudio.volume = this.volume - 0.2;
     this.songsAudio.load();
     this.songsAudio.play();
     this.songsAudio.addEventListener("ended", () => { this.changeMusicByGameState(); });
