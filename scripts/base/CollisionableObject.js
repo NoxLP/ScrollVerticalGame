@@ -10,7 +10,7 @@ export class CollisionableObject extends DrawableObject {
   }
   /**
    * Check if this collides with other.
-   * @param {CollisionableObject} other ColisionableObject to check if it collide with this. Does NOT check if movingObject is a ColisionableObject.
+   * @param {CollisionableObject} other ColisionableObject to check if it collide with this. Does NOT check if other is a ColisionableObject.
    * @todo Esto tendría que diferenciar entre tipos de objetos, por ejemplo dos disparos no deberían colisionar entre sí. ¿White/blacklist?
    */
   collideWith(other) {
@@ -19,24 +19,6 @@ export class CollisionableObject extends DrawableObject {
       this.x + this.width > other.x &&
       this.y < other.y + other.height &&
       this.y + this.height > other.y) {
-      return true;
-    } 
-    
-    return false;
-  }
-  /**
-   * Check if this collides with other using both elements bounding rect's top and left, instead of the object x and y variables(used when animation is CSS-driven).
-   * @param {CollisionableObject} other ColisionableObject to check if it collide with this. Does NOT check if movingObject is a ColisionableObject.
-   * @todo Esto tendría que diferenciar entre tipos de objetos, por ejemplo dos disparos no deberían colisionar entre sí. ¿White/blacklist?
-   */
-  collideWithByBoundingRect(other) {
-    let thisRect = this.elem.getBoundingClientRect();
-    let otherRect = other.elem.getBoundingClientRect();
-    if (other && other.collisionable &&
-      thisRect.left < otherRect.left + other.width &&
-      thisRect.left + this.width > otherRect.left &&
-      thisRect.top < otherRect.top + other.height &&
-      thisRect.top + this.height > otherRect.top) {
       return true;
     } 
     

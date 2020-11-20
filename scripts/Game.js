@@ -144,6 +144,9 @@ export class Game {
    * @param {Enemy} enemy Enemy to remove
    */
   removeEnemy(enemy, givePoints = true) {
+    if (givePoints)
+      this.points += (enemy.type + 1) * 100;
+
     if (this.gameState === "spaceInvaders") {
       //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
       enemy.elem.style.display = "none";
@@ -153,16 +156,12 @@ export class Game {
       clearTimeout(enemy.moveAnimationId);
       this.createExplosion(enemy);
 
-      if (givePoints)
-        this.points += (enemy.type + 1) * 100;
-
       if (this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
         this.startScrollVertical();
       }
     } else {
       this.createExplosion(enemy);
       this.svEnemiesPool.storeObject(enemy);
-      this.points += (enemy.type + 1) * 100;
     }
   }
   /**
@@ -195,7 +194,7 @@ export class Game {
     setTimeout(() => { this.bonus.move(); }, this.bonusTimeout);
   }
   /**
-   * Returns DOM coordinates for initial enemy position
+   * Returns DOM coordinates for initial enemy position. Used in "space invaders" part to calculate the coordinates of an enemy based on its position in the array siEnemies.
    * @param {number} row 
    * @param {number} column 
    */
@@ -208,7 +207,7 @@ export class Game {
     ];
   }
   /**
-   * Create all enemies in their initial position
+   * Create all "space invaders" part's enemies in their initial position
    */
   createEnemies() {
     /*
@@ -341,7 +340,7 @@ export class Game {
       mostLeftColumnWithEnemyAlive.x < this.canvasColumnWidth * this.canvasColumns;
   }
   /**
-   * Move all enemies in the classical pattern
+   * Move all enemies in the "space invaders" pattern
    */
   moveSpaceInvadersEnemies() {
     /*
@@ -358,7 +357,6 @@ export class Game {
     REPITE hasta que un enemigo de la fila inferior colisione con player
     */
 
-    //While la fila de abajo no colisione con el jugador
     this.spaceInvadersEnemiesShootsTimerId = setInterval(() => {
       /*
       Elegimos una columna aleatoria
@@ -403,11 +401,13 @@ export class Game {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
+
     if (this.finalBoss && this.finalBoss.elem.style.display !== "none") {
       this.finalBoss.myMovementTween.stop();
       clearTimeout(this.bossAnimationTimerId);
       this.bossAnimationTimerId = null;
     }
+
     if (this.gameState === "spaceInvaders") {
       for (let i = 0; i < this.siEnemies.length; i++) {
         for (let j = 0; j < this.siEnemies[i].length; j++) {
@@ -423,9 +423,6 @@ export class Game {
         clearTimeout(x.moveAnimationId);
         if (x.myMovementTween)
           x.myMovementTween.stop();
-
-        x.elem.style.top = getComputedStyle(x.elem).top;
-        x.elem.style.left = getComputedStyle(x.elem).left;
       });
     }
   }
@@ -723,9 +720,9 @@ export class Game {
   cheatToFinal() {
     this.cancelAllEnemiesMovement();
     cancelAnimationFrame(this.backgroundMoveTimerId);
-    this.backgroundBottom = -18625;
-    this.background.style.bottom = `${this.backgroundBottom}px`
     this.finalBoss = new Boss();
     this.finalBoss.enterGame();
+    this.backgroundBottom = -18625;
+    this.background.style.bottom = `${this.backgroundBottom}px`
   }
 }

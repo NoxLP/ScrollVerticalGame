@@ -28,7 +28,7 @@ export class Player extends CollisionableObject {
    * Call this function every time the player lose a live
    */
   loseLive() {
-    let audio = game.audio.playAudio("assets/music/sounds/playerLoseLive.wav", 0.3);
+    game.audio.playAudio("assets/music/sounds/playerLoseLive.wav", 0.3);
 
     let live = document.getElementById(`live${this._lives}`);
     live.style.filter = "brightness(0.3)";
