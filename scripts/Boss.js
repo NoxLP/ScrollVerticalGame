@@ -10,13 +10,13 @@ import { EnemyBullet } from "./bullets/EnemyBullet.js";
 export class Boss extends CollisionableObject {
   constructor() {
     let elem = new Image();
-    elem.src = "assets/images/spaceships/bossSpaceship3.png";
+    elem.src = "assets/images/spaceships/bossSpaceship.png";
     elem.classList.add("enemy");
     elem.style.display = "none";
     super(elem, (game.width / 2) - 400, -512, 650, 500);
 
     this.speed = 0.6;
-    this._health = 20;
+    this._health = 10;
     this.myMovementTween;
     this._currentPattern = 0;
     this._shootPatterns = [
