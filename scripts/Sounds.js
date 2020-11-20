@@ -1,6 +1,13 @@
-import { game, menu } from "./main.js";
+import { menu } from "./main.js";
 
+/**
+ * Object to handle of sounds and music of the game
+ */
 export class Sounds {
+  /**
+   * Constructor for Sounds object
+   * @param {float} volume Overall volume of all sounds and music of the game
+   */
   constructor(volume) {
     this.volume = volume;
     this.gamePlayList = [
@@ -23,13 +30,21 @@ export class Sounds {
     this.songsAudio.play();
     this.songsAudio.addEventListener("ended", () => { this.changeMusicByGameState(); });
   }
+  /**
+   * Change between menu music and in-game music
+   */
   changeMusicByGameState() {
-    this.songsAudio.src = menu.gameIsInMenu() ? 
+    this.songsAudio.src = menu.gameIsInMenu() ?
       this.menuPlayList[(this.currentSong++) % this.menuPlayList.length] :
       this.gamePlayList[(this.currentSong++) % this.gamePlayList.length];
     this.songsAudio.load();
     this.songsAudio.play();
   }
+  /**
+   * Plays a specific audio file
+   * @param {string} path Path to the audio file
+   * @param {float} volume If setted it overwrites the overall volume only for this audio
+   */
   playAudio(path, volume) {
     let audio = new Audio(path);
     audio.volume = volume ? volume : this.volume;

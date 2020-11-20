@@ -14,13 +14,11 @@ export class CollisionableObject extends DrawableObject {
    * @todo Esto tendría que diferenciar entre tipos de objetos, por ejemplo dos disparos no deberían colisionar entre sí. ¿White/blacklist?
    */
   collideWith(other) {
-    //console.log("collideWith", this.y, other)
     if (other && other.collisionable &&
       this.x < other.x + other.width &&
       this.x + this.width > other.x &&
       this.y < other.y + other.height &&
       this.y + this.height > other.y) {
-      //console.log("collides")
       return true;
     } 
     
@@ -32,16 +30,13 @@ export class CollisionableObject extends DrawableObject {
    * @todo Esto tendría que diferenciar entre tipos de objetos, por ejemplo dos disparos no deberían colisionar entre sí. ¿White/blacklist?
    */
   collideWithByBoundingRect(other) {
-    //console.log("collideWith", this.y, other)
     let thisRect = this.elem.getBoundingClientRect();
     let otherRect = other.elem.getBoundingClientRect();
-    //console.log(thisRect.left)
     if (other && other.collisionable &&
       thisRect.left < otherRect.left + other.width &&
       thisRect.left + this.width > otherRect.left &&
       thisRect.top < otherRect.top + other.height &&
       thisRect.top + this.height > otherRect.top) {
-      //console.log("collides")
       return true;
     } 
     

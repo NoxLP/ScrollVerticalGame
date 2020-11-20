@@ -4,6 +4,9 @@ import { Tween } from "./tweens/Tween.js";
 import { easings } from "./tweens/easings.js";
 import { EnemyBullet } from "./bullets/EnemyBullet.js";
 
+/**
+ * Boss class
+ */
 export class Boss extends CollisionableObject {
   constructor() {
     let elem = new Image();
@@ -18,27 +21,35 @@ export class Boss extends CollisionableObject {
     this._currentPattern = 0;
     this._shootPatterns = [
       [
-        [1,0], [0,1], [-1,0], [0,-1]
+        [1, 0], [0, 1], [-1, 0], [0, -1]
       ],
       [
-        [1,1], [1,-1], [-1,1], [-1,-1]
+        [1, 1], [1, -1], [-1, 1], [-1, -1]
       ],
       [
-        [1,0], [0,1], [-1,0], [0,-1], [1,1], [1,-1], [-1,1], [-1,-1]
+        [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]
       ]
     ];
   }
-  get health() {return this._health;}
+  /**
+   * Getter for boss health
+   */
+  get health() { return this._health; }
+  /**
+   * Setter for boss health. Do all the animations, explosions, etc.
+   */
   set health(value) {
     this._health = value;
-    console.log("HEALTH ", this._health)
-    if(this._health === 0) {
-      console.log("PLAYER WINS")
+    if (this._health === 0) {
       game.createExplosion(this);
       this.hide();
       game.playerWins();
     }
   }
+
+  /**
+   * Animation for the boss entering the game for the first time
+   */
   enterGame() {
     this.elem.style.display = "inline-block";
     this.collisionable = false;
@@ -50,7 +61,8 @@ export class Boss extends CollisionableObject {
       easings.linear,
       easings.linear,
       null,
-      () => { setTimeout(() => {
+      () => {
+        setTimeout(() => {
           this.collisionable = true;
           game.bossMovements(0);
         }, 500);
@@ -58,59 +70,73 @@ export class Boss extends CollisionableObject {
     );
     this.myMovementTween.start();
   }
+  /**
+   * Simply take the boss out of the screen
+   */
   hide() {
     this.x = (game.width / 2) - 400;
     this.y = -512;
     this.elem.style.display = "none";
   }
+  /**
+   * Boss got hitted
+   * @param {PlayerBullet} bullet Bullet that hits the boss
+   */
   bossHitted(bullet) {
     game.createExplosion(bullet);
-    console.log("hitted")
     this.health--;
   }
+  /**
+   * Move boss to the established point using easing functions that can be found at easings.js file.
+   * @param {array} point Array of coordinates [x, y]
+   * @param {function} leftEasing Easing function to be applied to the X axis
+   * @param {function} topEasing Easing function to be applied to the Y axis
+   */
   moveToPoint(point, leftEasing, topEasing) {
-    //console.log("MOVE TO POINT ", this)
-    if(this.myMovementTween) {
+    if (this.myMovementTween) {
       //if enemy is already in the middle of a movement tween, better to return false. If want to cancel the current tween, one can always pause or stop it before beginning a new movement
-      if(this.myMovementTween.running)
+      if (this.myMovementTween.running)
         return false;
-      
+
       //if enemy was in a tween AND the tween was paused, stopped, or finished, then just check if it was only paused and stop it without calling the final callback
-      if(this.myMovementTween.paused) {
+      if (this.myMovementTween.paused) {
         this.myMovementTween.stopWithoutCallback = true;
         this.myMovementTween.stop();
       }
     }
 
     const checkIfCollideWithPlayerEachFrame = () => {
-      if(this.collideWith(player)) {
+      if (this.collideWith(player)) {
         game.bossCollideWithPlayer();
       }
     }
 
     this.myMovementTween = new Tween(
-      this, 
-      this.speed, 
-      point, 
-      4, 
-      topEasing, 
-      leftEasing, 
-      () => { checkIfCollideWithPlayerEachFrame(); }, 
+      this,
+      this.speed,
+      point,
+      4,
+      topEasing,
+      leftEasing,
+      () => { checkIfCollideWithPlayerEachFrame(); },
       null
     );
-    
+
     this.myMovementTween.start();
   }
+  /**
+   * Boss shoot.
+   */
   shoot() {
     this.audio = game.audio.playAudio("assets/music/sounds/enemyLaser.mp3");
-    let bullet, bulletInitialCoords = [this.x + (this.width / 2), this.y + (this.height / 2)];
+    let bullet, bulletInitialCoords = [this.centerX, this.centerY];
 
-    if(this._currentPattern === this._shootPatterns.length)
+    if (this._currentPattern === this._shootPatterns.length)
       this._currentPattern = 0;
 
     this._shootPatterns[this._currentPattern].forEach(direction => {
       bullet = game.enemiesBulletsPool.getNewObject(() => new EnemyBullet(
-        this.x + (this.width / 2), this.y + (this.height / 2) - game.bulletSize[1]), this.x, this.y + this.height - game.bulletSize[1]);
+        this.centerX, this.centerY, this.x, this.y + this.height - game.bulletSize[1]));
       bullet.move(direction);
     });
 

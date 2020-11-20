@@ -2,28 +2,41 @@ import { Menu } from "./Menu.js";
 import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
+/**
+ * Normalize a 2d coordinates vector.
+ * @param {array} arr Array to normalize
+ */
 export const normalizeVector = arr => {
   var length = Math.sqrt((arr[0] ** 2) + (arr[1] ** 2));
   return [arr[0] / length, arr[1] / length];
 }
 
+/**
+ * Object that controls all general aspects of the game
+ */
 export const game = new Game(8);
+/**
+ * Object to handle and interact tieh game's menu
+ */
 export const menu = new Menu();
+/**
+ * The player
+ */
 export const player = new Player();
-console.log(game);
 
 document.addEventListener("keydown", function (e) {
   if (!player.responsive)
     return;
 
   /*
+  Keys direction correspondence
   key Left => -1,  0
   right =>     1,  0
   up =>        0, -1
   down =>      0,  1
   */
 
-  switch(e.key) {
+  switch (e.key) {
     case "ArrowLeft":
       player.playerDirection[0] = -1;
       break;
@@ -31,23 +44,21 @@ document.addEventListener("keydown", function (e) {
       player.playerDirection[0] = 1;
       break;
     case "ArrowUp":
-      if(game.gameState !== "spaceInvaders")
+      if (game.gameState !== "spaceInvaders")
         player.playerDirection[1] = -1;
       break;
     case "ArrowDown":
-      if(game.gameState !== "spaceInvaders")
+      if (game.gameState !== "spaceInvaders")
         player.playerDirection[1] = 1;
       break;
     case "t":
       game.cheatToFinal();
       break;
   }
-  if(!player.movementAnimationId)
+  if (!player.movementAnimationId)
     player.move();
 
-  console.log(e.key)
   if (e.key === " " && !player.shooting) {
-    console.log("SPACE")
     player.shooting = true;
     player.shoot();
   }
@@ -57,7 +68,7 @@ document.addEventListener("keyup", e => {
   if (!player.responsive)
     return;
 
-  switch(e.key) {
+  switch (e.key) {
     case "ArrowLeft":
       player.playerDirection[0] = 0;
       break;
@@ -71,7 +82,7 @@ document.addEventListener("keyup", e => {
       player.playerDirection[1] = 0;
       break;
   }
-  
+
   if (e.key === " ") {
     player.shooting = false;
   }

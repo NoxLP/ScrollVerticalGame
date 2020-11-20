@@ -7,7 +7,7 @@ import { PlayerBullet } from "./bullets/PlayerBullet.js";
  */
 export class Player extends CollisionableObject {
   constructor() {
-    let elem = new Image(); //document.getElementById('player');
+    let elem = new Image();
     elem.src = "assets/images/spaceships/player1.png";
     elem.id = "player";
     super(elem, game.playerInitialCoords[0], game.playerInitialCoords[1], game.playerSize[0], game.playerSize[1]);
@@ -20,7 +20,13 @@ export class Player extends CollisionableObject {
     this.movementAnimationId;
     this.shooting = false;
   }
+  /**
+   * Getter for current player's lives
+   */
   get lives() { return this._lives; }
+  /**
+   * Call this function every time the player lose a live
+   */
   loseLive() {
     let audio = game.audio.playAudio("assets/music/sounds/playerLoseLive.wav", 0.3);
 
@@ -31,15 +37,21 @@ export class Player extends CollisionableObject {
     this.x = game.playerInitialCoords[0];
     this.y = game.playerInitialCoords[1];
   }
+  /**
+   * Reset player lives to 3
+   */
   resetLives() {
     this._lives = 3;
-    for(let i = 1; i < 4; i++) {
+    for (let i = 1; i < 4; i++) {
       let live = document.getElementById(`live${i}`);
       live.style.filter = "";
     }
   }
+  /**
+   * Move player spaceship while a movement key is pressed
+   */
   move() {
-    if(this.playerDirection[0] === 0 && this.playerDirection[1] === 0) {
+    if (this.playerDirection[0] === 0 && this.playerDirection[1] === 0) {
       this.movementAnimationId = null;
       return;
     }
@@ -47,8 +59,8 @@ export class Player extends CollisionableObject {
     let nextX = this.x + (this.playerDirection[0] * game.step);
     let nextY = this.y + (this.playerDirection[1] * game.step);
 
-    if (nextX > 5 && nextX < game.width - this.width && 
-        nextY > 5 && nextY < game.height - this.height) {
+    if (nextX > 5 && nextX < game.width - this.width &&
+      nextY > 5 && nextY < game.height - this.height) {
       this.x = nextX;
       this.y = nextY;
     }
@@ -58,24 +70,25 @@ export class Player extends CollisionableObject {
    * Create bullets while the spacebar is pressed
    */
   shoot() {
-    if(this.shooting) {
-      //console.log("BULLET")
+    if (this.shooting) {
       const bullet = new PlayerBullet(
-        this.x + (this.width / 2) - (game.bulletSize[0] / 2), 
+        this.centerX - (game.bulletSize[0] / 2),
         this.y - (game.bulletSize[1] * 0.5));
       /*
       Para mover la bala hacia arriba:
       1.- window.requestAnimationFrame(bullet.move)
       */
       bullet.move();
-      if(!this.shootTimer)
+      if (!this.shootTimer)
         this.shootTimer = setInterval(() => { this.shoot(); }, game.bulletTimeout);
     } else {
-      //console.log("FALSE")
       clearInterval(this.shootTimer);
       this.shootTimer = null;
     }
   }
+  /**
+   * Move the player spacechip automatically(without animation) to the player initial position
+   */
   teleportToInitialPosition() {
     this.x = game.playerInitialCoords[0];
     this.y = game.playerInitialCoords[1];

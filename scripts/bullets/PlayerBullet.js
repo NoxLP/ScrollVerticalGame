@@ -6,33 +6,34 @@ import { game } from "../main.js";
  */
 export class PlayerBullet extends CollisionableObject {
   constructor(x, y) {
-    let elem = new Image(); //document.getElementById('player');
+    let elem = new Image();
     elem.src = "assets/images/bullets/playerBullet.png";
     elem.classList.add("bullet");
     super(elem, x, y, game.bulletSize[0], game.bulletSize[1]);
-    
+
     this.audio = game.audio.playAudio("assets/music/sounds/playerLaser.mp3");
   }
   /**
-   * Iterates all enemies to see if collides with one of them
+   * Iterates all "space invaders" part enemies to see if collides with one of them
    */
   isCollidingWithAnEnemy() {
-    //console.log("isCollidingWithAnEnemy", game.enemies)
-    //This could be more efficiente storing enemies by their coords in some sort of grid, so one should only check for collisions in the same column of the bullet
-    for(let i = 0; i < game.siEnemies.length; i++) {
-      for(let j = 0; j < game.siEnemies[i].length; j++) {
-        //console.log("ENEMY", game.siEnemies[i])
-        if(this.collideWith(game.siEnemies[i][j])) {
-          //console.log(game.siEnemies[i][j])
+    //This could be more efficient storing enemies by their coords in some sort of grid, so one should only check for collisions in the same column of the bullet
+    //No time for doing the above
+    for (let i = 0; i < game.siEnemies.length; i++) {
+      for (let j = 0; j < game.siEnemies[i].length; j++) {
+        if (this.collideWith(game.siEnemies[i][j])) {
           return game.siEnemies[i][j];
         }
       }
     }
     return null;
   }
+  /**
+   * Returns true if the bullet is colliding with a "scroll vertical" part enemy
+   */
   isCollidingWithASVEnemy() {
-    for(let i = 0; i < game.svEnemiesPool.showingObjects.length; i++) {
-      if(this.collideWithByBoundingRect(game.svEnemiesPool.showingObjects[i]))
+    for (let i = 0; i < game.svEnemiesPool.showingObjects.length; i++) {
+      if (this.collideWithByBoundingRect(game.svEnemiesPool.showingObjects[i]))
         return game.svEnemiesPool.showingObjects[i];
     }
   }
@@ -50,22 +51,22 @@ export class PlayerBullet extends CollisionableObject {
     de otra forma
       window.requestAnimationFrame(this.move)
     */
-    if(this.y + this.height > 0) {
+    if (this.y + this.height > 0) {
       this.y -= game.bulletStep;
-      if(!game.finalBoss || game.finalBoss.elem.style.display === "none") {
+      if (!game.finalBoss || game.finalBoss.elem.style.display === "none") {
         var collidingEnemy = game.gameState === "spaceInvaders" ? this.isCollidingWithAnEnemy() : this.isCollidingWithASVEnemy();
-        
-        if(collidingEnemy) {
+
+        if (collidingEnemy) {
           game.canvas.removeChild(this.elem);
           game.removeEnemy(collidingEnemy);
-        } else if(this.collideWith(game.bonus)) {
+        } else if (this.collideWith(game.bonus)) {
           game.removeBonusEnemy();
           game.canvas.removeChild(this.elem);
         } else {
           window.requestAnimationFrame(() => { this.move(); });
         }
       } else {
-        if(this.collideWith(game.finalBoss)) {
+        if (this.collideWith(game.finalBoss)) {
           game.finalBoss.bossHitted(this);
           game.canvas.removeChild(this.elem);
         } else {

@@ -82,19 +82,22 @@ export class Tween {
   get running() { return this._tweenRunning && !this._tweenPaused; }
   get paused() { return this._tweenPaused; }
   //#endregion
+  /**
+   * Start tween
+   */
   start() {
     this._xDistance = this._finalPoint[0] - this._enemy.x;
     this._yDistance = this._finalPoint[1] - this._enemy.y;
-    this._percentagePerStep = 1 / (game.svEnemySpeed * this._speedFactor);// / this._xDistance;
+    this._percentagePerStep = 1 / (game.svEnemySpeed * this._speedFactor);
 
-    if(this._numberOfShoots) {
-      /*
+    if (this._numberOfShoots) {
+      /* F.i.:
       shoots
       number of shoots = 2
       1 / (nSh + 1) => shootPercentage => 0.33333, 0.6666 
       */
       let percentagePerShoot = 1 / (this._numberOfShoots + 1);
-      for(let i = 1; i <= this._numberOfShoots; i++) {
+      for (let i = 1; i <= this._numberOfShoots; i++) {
         this._shootPercentages.push(+(((percentagePerShoot * i) - (Math.random() * this._percentagePerStep * 100)).toFixed(4)));
       }
     }
@@ -102,15 +105,23 @@ export class Tween {
     this._tweenRunning = true;
     this._tweenPaused = false;
 
-    console.log("__TWEEN start", this)
     this._tick();
   }
+  /**
+   * Pause/unpause tween.
+   */
   pause() {
-    this._tweenPaused = true;
+    this._tweenPaused = !this._tweenPaused;
   }
+  /**
+   * Stop tween.
+   */
   stop() {
     this._tweenRunning = false;
   }
+  /**
+   * Reset tween to original values. Use when you want the tween to restart, but pause or stop it first.
+   */
   reset() {
     if (this._tweenRunning && !this._tweenPaused) {
       console.log("Can not reset a tween while running and not paused");
@@ -127,25 +138,31 @@ export class Tween {
       cancelAnimationFrame(this._frameRequestId);
     this._frameRequestId = null;
   }
+  /**
+   * Private function to calculate distance from the current point to the final point
+   */
   _distanceToFinalPoint() {
     return [Math.abs(this._enemy.x - this._finalPoint[0]), Math.abs(this._enemy.y - this._finalPoint[1])];
   }
+  /**
+   * Function executed every tick during the animation. It's the function that effectively do the movement animation
+   */
   _tick() {
     if (this._tweenRunning && !this._tweenPaused) {
       let currentDistanceToFinal = this._distanceToFinalPoint();
-      
-      if (currentDistanceToFinal[0] > this._percentagePerStep || 
-          currentDistanceToFinal[1] > this._percentagePerStep) {
+
+      if (currentDistanceToFinal[0] > this._percentagePerStep ||
+        currentDistanceToFinal[1] > this._percentagePerStep) {
         this._xPercentage += this._percentagePerStep;
         this._yPercentage += this._percentagePerStep;
         this._enemy.x = this._initialPoint[0] + (this._leftEasing(this._xPercentage) * this._xDistance);
         this._enemy.y = this._initialPoint[1] + (this._topEasing(this._yPercentage) * this._yDistance);
-        
-        if(this._numberOfShoots &&
-          this._enemy.x > 0 && this._enemy.x < game.width && 
+
+        if (this._numberOfShoots &&
+          this._enemy.x > 0 && this._enemy.x < game.width &&
           this._enemy.y > 0 && this._enemy.y < game.height &&
-          this._shootPercentages.some(perc => this._xPercentage > perc - (this._percentagePerStep * 0.5) && 
-          this._xPercentage < perc + (this._percentagePerStep * 0.5)))
+          this._shootPercentages.some(perc => this._xPercentage > perc - (this._percentagePerStep * 0.5) &&
+            this._xPercentage < perc + (this._percentagePerStep * 0.5)))
           this._enemy.shoot();
 
         if (this._tickCallback)

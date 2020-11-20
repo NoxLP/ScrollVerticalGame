@@ -11,6 +11,10 @@ import { Boss } from "./Boss.js";
  * Class for control them all
  */
 export class Game {
+  /**
+   * Game constructor.
+   * @param {number} enemiesPerRow Number of enemies per row when the game is at the "space invaders" part.
+   */
   constructor(enemiesPerRow) {
     this.gameState = "spaceInvaders";
     this.step = 9;
@@ -120,7 +124,13 @@ export class Game {
     this.canvas.appendChild(this.messagePopup);
   }
 
+  /**
+   * Getter for current player points.
+   */
   get points() { return this._points; }
+  /**
+   * Setter for player points. It initiates points earned animation automatically.
+   */
   set points(total) {
     this._points = total;
     this.pointsCounter.showedPoints = total;
@@ -136,11 +146,9 @@ export class Game {
   removeEnemy(enemy, givePoints = true) {
     if (this.gameState === "spaceInvaders") {
       //Remove enemy image from DOM and object from array. No more references are ever created, so garbage collector should remove it rom memory
-      console.log(enemy)
       enemy.elem.style.display = "none";
       enemy.collisionable = false;
-      //this.canvas.removeChild(enemy.elem);
-      //this.siEnemies[enemy.row][enemy.column] = null;
+
       cancelAnimationFrame(enemy.moveAnimationId);
       clearTimeout(enemy.moveAnimationId);
       this.createExplosion(enemy);
@@ -149,7 +157,6 @@ export class Game {
         this.points += (enemy.type + 1) * 100;
 
       if (this.siEnemies.every(x => x.every(e => e.elem.style.display === "none"))) {
-        //this.playerWins();
         this.startScrollVertical();
       }
     } else {
@@ -193,8 +200,6 @@ export class Game {
    * @param {number} column 
    */
   calculateCoordinatesByPosition(row, column) {
-    //console.log(this.game.canvas.style.width)
-    //console.log(this.canvasColumns)
     //margen + ((total ancho / numero de naves) * numero nave actual)
     const enemyType = Math.ceil(row / 2);
     return [
@@ -234,15 +239,14 @@ export class Game {
         this.siEnemies[i].push(new Enemy(Math.ceil(i / 2), coords[0], coords[1], i, j));
       }
     }
-    console.log(this.siEnemies)
   }
   /**
    * Create explosion when enemy gets destroyed
    * @param {CollisionableObject} collidingObject Enemy destroyed
    */
   createExplosion(collidingObject) {
-    //console.log("////////// CREATE EXPLOSION")
-    let audio = this.audio.playAudio("assets/music/sounds/explosion.mp3");
+    this.audio.playAudio("assets/music/sounds/explosion.mp3");
+
     let explosion = new Image();
     explosion.src = "assets/images/spaceships/playerExplosion.gif";
     explosion.classList.add("explosion");
@@ -266,11 +270,14 @@ export class Game {
     Se mueve hasta salirse del canvas y se para.
     Cuando salga de la pantalla se hace transparente.
     Despues de 30 seg vuelve a ser visible en la posición de salida.
-    
     */
     this.bonus = new BonusEnemy();
     setTimeout(() => { this.bonus.move(); }, (Math.random() * game.bonusTimeout * 0.5) + (game.bonusTimeout * 0.5));
   }
+  /**
+   * TODO: Create the final boss
+   * @todo create the final boss
+   */
   createFinalBoss() {
 
   }
@@ -288,6 +295,9 @@ export class Game {
    * @param {number} row Row index
    */
   getYOfCanvasRow(row) { return this.canvasRowHeight * (row + 0.5); }
+  /**
+   * Used in "space invaders" part to check if the enemies from the most left column are at the left limit of the screen, so enemies should move down.
+   */
   leftColumnEnemyIsInCanvasLeftColumn() {
     var mostLeftColumnWithEnemyAlive;
     for (let j = 0; j < this.siEnemiesPerRow; j++) {
@@ -307,6 +317,9 @@ export class Game {
 
     return mostLeftColumnWithEnemyAlive.x > 0 && mostLeftColumnWithEnemyAlive.x < this.canvasColumnWidth;
   }
+  /**
+   * Used in "space invaders" part to check if the enemies from the most right column are at the right limit of the screen, so enemies should move down.
+   */
   rightColumnEnemyIsInCanvasRightColumn() {
     let mostLeftColumnWithEnemyAlive;
     for (let j = this.siEnemiesPerRow - 1; j >= 0; j--) {
@@ -320,10 +333,7 @@ export class Game {
         break;
       }
     }
-    /*
-    j = 3, i = 0 => ...
-    j = 3, i = 1 => ...
-    */
+
     if (!mostLeftColumnWithEnemyAlive)
       return false;
 
@@ -348,7 +358,6 @@ export class Game {
     REPITE hasta que un enemigo de la fila inferior colisione con player
     */
 
-    console.log("---- MOVE SI");
     //While la fila de abajo no colisione con el jugador
     this.spaceInvadersEnemiesShootsTimerId = setInterval(() => {
       /*
@@ -368,13 +377,13 @@ export class Game {
           continue;
         }
       }
+
       if (lastEnemy)
         lastEnemy.shoot();
     }, 1500);
 
     for (let i = 0; i < this.siEnemies.length; i++) {
       for (let j = 0; j < this.siEnemies[i].length; j++) {
-        //if (this.siEnemies[i][j])
         let enemy = this.siEnemies[i][j];
         enemy.collisionable = true;
         enemy.elem.style.display = "inline";
@@ -414,55 +423,20 @@ export class Game {
         clearTimeout(x.moveAnimationId);
         if (x.myMovementTween)
           x.myMovementTween.stop();
+
         x.elem.style.top = getComputedStyle(x.elem).top;
         x.elem.style.left = getComputedStyle(x.elem).left;
       });
     }
   }
+  /**
+   * Function to handle "scroll vertical" part's enemies movement. Call it once and works recursively with setInterval. Cancel it with function cancelAllEnemiesMovements.
+   * @param {number} lastIndex Index of last path used. Used to recursive calls, no need to set it at first call
+   */
   scrollVerticalEnemiesMovements(lastIndex) {
-    //#region explanation
-    /*
-    Aleatorio aparecen de 0 a X enemigos
-    Crea un enemigo o coje uno en display none
-      En un lugar aleatorio fuera del canvas
-    Escoja un punto aleatorio del borde del canvas para salir
-    Mueva el enemigo hasta ese punto
-    (si muere o se sale del canvas => display none, ...)
-    set timeout tiempo aleatorio 2-10segs recursivo
-    */
-
-    /* 
-    Crear enemigo fuera del canvas
-    X < 0 || X > canvas width
-    ||
-    Y < 0 || Y > canvas heigth
-    
-    Punto aleatorio del borde del canvas
-    X === -enemy.width || X === canvas width
-    ||
-    Y === -enemy.height || Y === canvas heigth
-     */
-    //let x, y, finalX, finalY;
-    /*if(Math.random() > 0.5){
-      x = -400;
-      y = Math.random() * this.height;
-    } else {
-      y = -400;
-      x = Math.random() * this.width;
-    }
-    if(Math.random() > 0.5){
-      finalX = -400;
-      finalY = Math.random() * this.height;
-    } else {
-      finalY = -400;
-      finalX = Math.random() * this.width;
-    }*/
-    //#endregion
-    console.log("----------------- Nuevo enemigo scroll");
     let index;
     while ((index = Math.round(Math.random() * (this.svEnemiesPaths.length - 1))) === lastIndex);
 
-    console.log("------- PATRON ", index)
     let initial = this.svEnemiesPaths[index][0];
     let final = this.svEnemiesPaths[index][1];
     let shiptype = Math.round(Math.random() * 2);
@@ -488,6 +462,10 @@ export class Game {
       this.svEnemiesMoveTimerId = setInterval(() => { this.scrollVerticalEnemiesMovements(index); }, (Math.random() * 6000) + 2000);
     }
   }
+  /**
+   * Function to handle final boss movement. Call it once and works recursively with setTimeouts. Cancel it with function cancelAllEnemiesMovements.
+   * @param {number} index Index of last movement pattern used. Start with 0 the first tiem it's called
+   */
   bossMovements(index) {
     /*
     Sigue un patrón de movimientos => Hacer paths en this.bossPaths(array) hasta el final, y repetir
@@ -496,18 +474,9 @@ export class Game {
       Esperar 3 segundos
     */
 
-    /*
-    this.bossPaths = [
-      [
-        [30, 30], 
-        [easings.easeOutSine, easings.linear]
-      ]
-    ];
-    */
-
     if (index === this.bossPaths.length)
       index = 0;
-    console.log("/////////// index ", index)
+
     this.finalBoss.moveToPoint(
       this.bossPaths[index][0],
       this.bossPaths[index][1][0],
@@ -529,6 +498,9 @@ export class Game {
     this.removeEnemy(enemy, false);
     this.playerHitted();
   }
+  /**
+   * Handles final boss colliding with player.
+   */
   bossCollideWithPlayer() {
     this.playerHitted();
     this.finalBoss.bossHitted();
@@ -556,13 +528,16 @@ export class Game {
     else
       game over
     */
+    player.responsive = false;
     this.createExplosion(player);
     this.removePlayer();
     this.cancelAllEnemiesMovement();
+
     if (this.bonus) {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
+
     player.loseLive();
 
     if (player.lives > 0) {
@@ -570,6 +545,8 @@ export class Game {
 
       this.svEnemiesPool.storeAllObjects();
       setTimeout(() => {
+        player.responsive = true;
+
         if (this.finalBoss && this.finalBoss.elem.display !== "none") {
           this.bossMovements(0);
         } else if (this.gameState === "spaceInvaders") {
@@ -579,6 +556,7 @@ export class Game {
         } else {
           this.scrollVerticalEnemiesMovements();
         }
+
         player.responsive = true;
         player.collisionable = true;
         player.elem.style.display = "inline";
@@ -587,6 +565,9 @@ export class Game {
       setTimeout(() => { this.gameOver(); }, 1000);
     }
   }
+  /**
+   * Stop all player movements and shooting. It does NOT make the player unresponsive, just sto pthe current movement and shooting.
+   */
   stopAllPlayerMovements() {
     player.playerDirection = [0, 0];
     player.shooting = false;
@@ -594,6 +575,9 @@ export class Game {
   //#endregion
   /************************************************************************************************************/
   /*********************************************** GAME STATE *************************************************/
+  /**
+   * Game over. You know, message, reset all, go back to the menu, etc.
+   */
   gameOver() {
     this.cancelAllEnemiesMovement();
     this.audio.changeMusicByGameState();
@@ -603,6 +587,7 @@ export class Game {
     setTimeout(() => {
       if (this.finalBoss && this.finalBoss.elem.style.display !== "none")
         this.finalBoss.hide();
+
       player.resetLives();
       this.pointsCounter.reset();
       this.siReset();
@@ -610,29 +595,41 @@ export class Game {
     }, 2500);
   }
   /**
-   * Reset game - Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
+   * Reset game when in "space invaders" part. Do NOT reset lives and points. Move player to initial coordinates, move enemies and bonus ship to initial coordinates and restart their movement.
    */
   siReset() {
     player.teleportToInitialPosition();
+
     //All enemies to initial position
     for (let i = 0; i < this.siEnemies.length; i++) {
       for (let j = 0; j < this.siEnemies[i].length; j++) {
         this.siEnemies[i][j].teleportToInitialPosition();
       }
     }
+
     if (this.bonus) {
       this.bonus.cancelAnimation();
       this.bonus.resetPosition();
     }
   }
+  /**
+   * Show message text in the middle of the screen.
+   * @param {string} message Message to show
+   */
   showMessage(message) {
     this.messagePopup.innerText = message;
     this.messagePopup.style.display = "inline-block";
     setTimeout(() => { this.hideMessage() }, 3000);
   }
+  /**
+   * Hide message showed using showMessage function.
+   */
   hideMessage() {
     this.messagePopup.style.display = "none";
   }
+  /**
+   * Start scroll vertical part of the game. Start to move background, start new enemies movements, show message, etc.
+   */
   startScrollVertical() {
     /*
     Mover background
@@ -655,12 +652,16 @@ export class Game {
       }
     }
     this.siEnemies = [];
+
     setTimeout(() => {
       player.responsive = true;
       this.moveBackgroundDown();
       this.scrollVerticalEnemiesMovements();
     }, 3000);
   }
+  /**
+   * Handle player wins the game when kills the final boss.
+   */
   playerWins() {
     /*
     Parar movimientos: enemigos, bonus, ¿player?
@@ -682,38 +683,42 @@ export class Game {
       }, 3000);
     }, 1000);
   }
+  /**
+   * Move background down. Used in "scroll vertical" part.
+   */
   moveBackgroundDown() {
     this.backgroundBottom -= 0.9;
     this.background.style.bottom = `${this.backgroundBottom}px`
     this.backgroundMoveTimerId = window.requestAnimationFrame(() => { this.moveBackgroundDown(); });
   }
+  /**
+   * Stop background going down. Used to stop the background so the player can face the final boss.
+   */
   stopBackground() {
     cancelAnimationFrame(this.backgroundMoveTimerId);
     this.backgroundBottom = 5200;
     this.background.style.bottom = `${this.backgroundBottom}px`
   }
-  DELETEME_instaScrollVertical() {
-    this.gameState = "SV";
-    this.stopAllPlayerMovements();
-    player.responsive = true;
-    this.moveBackgroundDown();
-    //this.scrollVerticalEnemiesMovements();
-  }
+  /**
+   * Start the game. Called when the player clicks on the menu start button.
+   */
   start() {
     this.stopBackground();
     this.gameState = "spaceInvaders";
     player.responsive = true;
     player.collisionable = true;
     this.audio.changeMusicByGameState();
-    if(!this.siEnemies || this.siEnemies.length === 0)
+
+    if (!this.siEnemies || this.siEnemies.length === 0)
       game.createEnemies();
     game.moveSpaceInvadersEnemies();
     game.createBonusEnemy();
-    //this.startScrollVertical();
-    //this.DELETEME_instaScrollVertical();
   }
   /************************************************************************************************************/
   /************************************************* CHEATS ***************************************************/
+  /**
+   * Cheat to go instantly to the final boss.
+   */
   cheatToFinal() {
     this.cancelAllEnemiesMovement();
     cancelAnimationFrame(this.backgroundMoveTimerId);
