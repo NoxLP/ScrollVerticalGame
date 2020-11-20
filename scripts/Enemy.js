@@ -1,6 +1,6 @@
 import { CollisionableObject } from "./base/CollisionableObject.js";
 import { EnemyBullet } from "./bullets/EnemyBullet.js";
-import { game, player, normalizeVector } from "./main.js";
+import { game, player } from "./main.js";
 import { Tween } from "./tweens/Tween.js";
 
 /**
@@ -194,6 +194,14 @@ export class Enemy extends CollisionableObject {
     this.myMovementTween.start();
   }
   /**
+   * Normalize a 2d coordinates vector.
+   * @param {array} arr Array to normalize
+   */
+  normalizeVector(arr) {
+    var length = Math.sqrt((arr[0] ** 2) + (arr[1] ** 2));
+    return [arr[0] / length, arr[1] / length];
+  }
+  /**
    * Shoot one bullet. It shoots the correct bullet wither if the game is on "space invaders" or "scroll vertical" state.
    */
   shoot() {
@@ -207,7 +215,7 @@ export class Enemy extends CollisionableObject {
       let direction;
       switch (this.type) {
         case 0:
-          direction = normalizeVector([player.x - this.x, player.y - this.y]);
+          direction = this.normalizeVector([player.x - this.x, player.y - this.y]);
           bullet = game.enemiesBulletsPool.getNewObject(() => 
             new EnemyBullet(bulletInitialCoords[0], bulletInitialCoords[1]), 
             bulletInitialCoords[0], 

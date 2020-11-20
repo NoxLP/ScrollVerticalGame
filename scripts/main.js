@@ -3,15 +3,6 @@ import { Game } from "./Game.js";
 import { Player } from "./Player.js";
 
 /**
- * Normalize a 2d coordinates vector.
- * @param {array} arr Array to normalize
- */
-export const normalizeVector = arr => {
-  var length = Math.sqrt((arr[0] ** 2) + (arr[1] ** 2));
-  return [arr[0] / length, arr[1] / length];
-}
-
-/**
  * Object that controls all general aspects of the game
  */
 export const game = new Game(8);
