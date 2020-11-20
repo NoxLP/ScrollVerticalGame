@@ -33,7 +33,7 @@ export class PlayerBullet extends CollisionableObject {
    */
   isCollidingWithASVEnemy() {
     for (let i = 0; i < game.svEnemiesPool.showingObjects.length; i++) {
-      if (this.collideWithByBoundingRect(game.svEnemiesPool.showingObjects[i]))
+      if (this.collideWith(game.svEnemiesPool.showingObjects[i]))
         return game.svEnemiesPool.showingObjects[i];
     }
   }
