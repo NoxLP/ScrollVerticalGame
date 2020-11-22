@@ -1,6 +1,6 @@
 # Final frontier
 
-Scroll vertical game made as a project for Reboot Academy by students Rosana, Zebensuy and Norberto. The game is made using Javascript and CSS, ready to use in a html5 compliant browser and tested in Google Chrome, but is not finished.
+Scroll vertical game made as a project for [Reboot Academy](https://www.reboot.academy/) by students Rosana, Zebensuy and Norberto. The game is made using Javascript and CSS, ready to use in a html5 compliant browser and tested in Google Chrome, but is not finished.
 
 Use keyboard arrows to move the player ship, and spacebar to shoot.
 
